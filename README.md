@@ -1,97 +1,165 @@
-This is a new [**React Native**](https://reactnative.dev) project, bootstrapped using [`@react-native-community/cli`](https://github.com/react-native-community/cli).
+# Campus Health System
 
-# Getting Started
+A comprehensive digital medical record management system for university campuses, designed to transition from manual paper-based notes to a streamlined digital platform.
 
-> **Note**: Make sure you have completed the [Set Up Your Environment](https://reactnative.dev/docs/set-up-your-environment) guide before proceeding.
+## Overview
 
-## Step 1: Start Metro
+The Campus Health System serves three primary user roles:
+- **Students**: Appointment booking, health profile management, and health resources access
+- **Staff**: Flexible booking for self and students, prescription viewing
+- **Campus Nurse (Admin)**: User management, inventory control, and data portability
 
-First, you will need to run **Metro**, the JavaScript build tool for React Native.
+## Features
 
-To start the Metro dev server, run the following command from the root of your React Native project:
+### Student Features
+- ✅ Appointment Management (Standard & Emergency)
+- ✅ Health Profile Management (Height, Weight tracking)
+- ✅ Health Resources & Tips
+- ✅ QR Code Scanner for quick access
 
-```sh
-# Using npm
-npm start
+### Staff Features
+- ✅ Personal Appointment Booking
+- ✅ Student Appointment Scheduling
+- ✅ Digital Prescription Access
+- ✅ Health Resources
 
-# OR using Yarn
-yarn start
+### Nurse (Admin) Features
+- ✅ User Management (Students & Staff)
+- ✅ Medicine Inventory Tracking
+- ✅ Low Stock Alerts
+- ✅ PDF/Excel Report Generation
+- ✅ Appointment Management
+
+## Technology Stack
+
+- **Frontend**: React Native 0.84.0
+- **UI Framework**: React Native Paper
+- **Navigation**: React Navigation (Stack + Bottom Tabs)
+- **Dropdowns**: React Native Element Dropdown
+- **Storage**: AsyncStorage
+- **Icons**: React Native Vector Icons
+- **State Management**: React Context API
+
+## Project Structure
+
+```
+src/
+├── components/
+│   └── common/
+│       ├── LoadingSpinner.tsx
+│       └── DropdownComponent.tsx
+├── constants/
+│   └── api.ts
+├── contexts/
+│   └── AuthContext.tsx
+├── navigation/
+│   └── AppNavigator.tsx
+├── screens/
+│   ├── auth/
+│   │   ├── LoginScreen.tsx
+│   │   └── SignupScreen.tsx
+│   ├── student/
+│   │   ├── StudentDashboardScreen.tsx
+│   │   ├── StudentAppointmentsScreen.tsx
+│   │   ├── StudentHealthMetricsScreen.tsx
+│   │   └── StudentHealthResourcesScreen.tsx
+│   ├── staff/
+│   │   ├── StaffDashboardScreen.tsx
+│   │   ├── StaffAppointmentsScreen.tsx
+│   │   ├── StaffPrescriptionsScreen.tsx
+│   │   └── StaffHealthResourcesScreen.tsx
+│   ├── nurse/
+│   │   ├── NurseDashboardScreen.tsx
+│   │   ├── NurseAppointmentsScreen.tsx
+│   │   ├── NurseUsersScreen.tsx
+│   │   ├── NurseInventoryScreen.tsx
+│   │   └── NurseReportsScreen.tsx
+│   └── common/
+│       ├── ProfileScreen.tsx
+│       └── SettingsScreen.tsx
+├── services/
+│   └── api.ts
+├── types/
+│   └── index.ts
+└── utils/
+    ├── dimensions.ts
+    └── storage.ts
 ```
 
-## Step 2: Build and run your app
+## Getting Started
 
-With Metro running, open a new terminal window/pane from the root of your React Native project, and use one of the following commands to build and run your Android or iOS app:
+### Prerequisites
+- Node.js >= 22.11.0
+- React Native development environment
+- Android Studio / Xcode for mobile development
 
-### Android
+### Installation
 
-```sh
-# Using npm
-npm run android
+1. Clone the repository
+2. Install dependencies:
+   ```sh
+   npm install
+   ```
 
-# OR using Yarn
-yarn android
-```
+3. For iOS, install CocoaPods:
+   ```sh
+   cd ios && pod install && cd ..
+   ```
 
-### iOS
+### Running the App
 
-For iOS, remember to install CocoaPods dependencies (this only needs to be run on first clone or after updating native deps).
+1. Start Metro:
+   ```sh
+   npm start
+   ```
 
-The first time you create a new project, run the Ruby bundler to install CocoaPods itself:
+2. Run on Android:
+   ```sh
+   npm run android
+   ```
 
-```sh
-bundle install
-```
+3. Run on iOS:
+   ```sh
+   npm run ios
+   ```
 
-Then, and every time you update your native dependencies, run:
+## API Integration
 
-```sh
-bundle exec pod install
-```
+The app is designed to work with a REST API running on `http://localhost:8080`. Key endpoints include:
 
-For more information, please visit [CocoaPods Getting Started guide](https://guides.cocoapods.org/using/getting-started.html).
+- Authentication: `/api/auth/login`, `/api/auth/signup`
+- Appointments: `/api/appointments/*`
+- Health Metrics: `/api/health-metrics/*`
+- Inventory: `/api/inventory/*`
+- Users: `/api/users/*`
 
-```sh
-# Using npm
-npm run ios
+## Responsive Design
 
-# OR using Yarn
-yarn ios
-```
+The app uses a responsive design system with:
+- Dynamic scaling based on screen dimensions
+- Responsive font sizes, margins, and padding
+- Tablet and mobile device support
 
-If everything is set up correctly, you should see your new app running in the Android Emulator, iOS Simulator, or your connected device.
+## Development Notes
 
-This is one way to run your app — you can also build it directly from Android Studio or Xcode.
+- The app uses TypeScript for type safety
+- All components follow a consistent naming convention
+- Responsive utilities are centralized in `utils/dimensions.ts`
+- Authentication state is managed through React Context
+- Local storage is handled via AsyncStorage
 
-## Step 3: Modify your app
+## Future Enhancements
 
-Now that you have successfully run the app, let's make changes!
+- [ ] Real-time notifications
+- [ ] Offline mode support
+- [ ] Biometric authentication
+- [ ] Video consultations
+- [ ] Integration with wearable devices
 
-Open `App.tsx` in your text editor of choice and make some changes. When you save, your app will automatically update and reflect these changes — this is powered by [Fast Refresh](https://reactnative.dev/docs/fast-refresh).
+## Troubleshooting
 
-When you want to forcefully reload, for example to reset the state of your app, you can perform a full reload:
+For common React Native issues, refer to the [React Native Troubleshooting Guide](https://reactnative.dev/docs/troubleshooting).
 
-- **Android**: Press the <kbd>R</kbd> key twice or select **"Reload"** from the **Dev Menu**, accessed via <kbd>Ctrl</kbd> + <kbd>M</kbd> (Windows/Linux) or <kbd>Cmd ⌘</kbd> + <kbd>M</kbd> (macOS).
-- **iOS**: Press <kbd>R</kbd> in iOS Simulator.
+## License
 
-## Congratulations! :tada:
-
-You've successfully run and modified your React Native App. :partying_face:
-
-### Now what?
-
-- If you want to add this new React Native code to an existing application, check out the [Integration guide](https://reactnative.dev/docs/integration-with-existing-apps).
-- If you're curious to learn more about React Native, check out the [docs](https://reactnative.dev/docs/getting-started).
-
-# Troubleshooting
-
-If you're having issues getting the above steps to work, see the [Troubleshooting](https://reactnative.dev/docs/troubleshooting) page.
-
-# Learn More
-
-To learn more about React Native, take a look at the following resources:
-
-- [React Native Website](https://reactnative.dev) - learn more about React Native.
-- [Getting Started](https://reactnative.dev/docs/environment-setup) - an **overview** of React Native and how setup your environment.
-- [Learn the Basics](https://reactnative.dev/docs/getting-started) - a **guided tour** of the React Native **basics**.
-- [Blog](https://reactnative.dev/blog) - read the latest official React Native **Blog** posts.
-- [`@facebook/react-native`](https://github.com/facebook/react-native) - the Open Source; GitHub **repository** for React Native.
+This project is proprietary and confidential.

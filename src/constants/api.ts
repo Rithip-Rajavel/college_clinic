@@ -1,11 +1,11 @@
-export const API_BASE_URL = 'http://localhost:8080';
+export const API_BASE_URL = 'http://10.116.206.219:5022';
 
 export const API_ENDPOINTS = {
   // Auth
   LOGIN: '/api/auth/login',
   SIGNUP: '/api/auth/signup',
   VALIDATE_TOKEN: '/api/auth/validate',
-  
+
   // Users
   GET_ALL_USERS: '/api/users',
   GET_USER_BY_ID: (id: number) => `/api/users/${id}`,
@@ -14,7 +14,7 @@ export const API_ENDPOINTS = {
   GET_NURSE: '/api/users/nurse',
   UPDATE_USER: (id: number) => `/api/users/${id}`,
   DEACTIVATE_USER: (id: number) => `/api/users/${id}`,
-  
+
   // Appointments
   CREATE_APPOINTMENT: '/api/appointments',
   GET_APPOINTMENT_BY_ID: (id: number) => `/api/appointments/${id}`,
@@ -26,7 +26,7 @@ export const API_ENDPOINTS = {
   UPDATE_APPOINTMENT: (id: number) => `/api/appointments/${id}/update`,
   CANCEL_APPOINTMENT: (id: number) => `/api/appointments/${id}/cancel`,
   APPROVE_APPOINTMENT: (id: number) => `/api/appointments/${id}/approve`,
-  
+
   // Health Metrics
   CREATE_HEALTH_METRICS: '/api/health-metrics',
   CREATE_HEALTH_METRICS_FOR_USER: (userId: number) => `/api/health-metrics/user/${userId}`,
@@ -38,7 +38,7 @@ export const API_ENDPOINTS = {
   GET_LATEST_MY_HEALTH_METRICS: '/api/health-metrics/my/latest',
   UPDATE_HEALTH_METRICS: (id: number) => `/api/health-metrics/${id}`,
   DELETE_HEALTH_METRICS: (id: number) => `/api/health-metrics/${id}`,
-  
+
   // Inventory
   GET_ALL_INVENTORY: '/api/inventory',
   CREATE_INVENTORY: '/api/inventory',

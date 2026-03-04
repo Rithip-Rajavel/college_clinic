@@ -33,12 +33,17 @@ import NurseReportsScreen from '../screens/nurse/NurseReportsScreen';
 // Common Screens
 import ProfileScreen from '../screens/common/ProfileScreen';
 import SettingsScreen from '../screens/common/SettingsScreen';
+import CreateAppointmentScreen from '../screens/common/CreateAppointmentScreen';
+import InventoryDetailsScreen from '../screens/common/InventoryDetailsScreen';
+import UserDetailsScreen from '../screens/common/UserDetailsScreen';
 
 export type RootStackParamList = {
   Auth: undefined;
   Main: undefined;
   Profile: undefined;
   Settings: undefined;
+  Login: undefined;
+  Signup: undefined;
   AppointmentDetails: { appointmentId: number };
   CreateAppointment: { userId?: number };
   HealthMetricsDetails: { metricsId: number };
@@ -252,23 +257,50 @@ const AppNavigator: React.FC = () => {
         {isAuthenticated ? (
           <>
             <Stack.Screen name="Main" component={MainNavigator} />
-            <Stack.Screen 
-              name="Profile" 
+            <Stack.Screen
+              name="Profile"
               component={ProfileScreen}
-              options={{ 
+              options={{
                 headerShown: true,
                 title: 'Profile',
                 presentation: 'modal'
-              }} 
+              }}
             />
-            <Stack.Screen 
-              name="Settings" 
+            <Stack.Screen
+              name="Settings"
               component={SettingsScreen}
-              options={{ 
+              options={{
                 headerShown: true,
                 title: 'Settings',
                 presentation: 'modal'
-              }} 
+              }}
+            />
+            <Stack.Screen
+              name="CreateAppointment"
+              component={CreateAppointmentScreen}
+              options={{
+                headerShown: true,
+                title: 'Book Appointment',
+                presentation: 'modal'
+              }}
+            />
+            <Stack.Screen
+              name="InventoryDetails"
+              component={InventoryDetailsScreen}
+              options={{
+                headerShown: true,
+                title: 'Inventory Details',
+                presentation: 'modal'
+              }}
+            />
+            <Stack.Screen
+              name="UserDetails"
+              component={UserDetailsScreen}
+              options={{
+                headerShown: true,
+                title: 'User Details',
+                presentation: 'modal'
+              }}
             />
           </>
         ) : (

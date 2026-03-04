@@ -1,5 +1,6 @@
 import { API_BASE_URL, API_ENDPOINTS } from '../constants/api';
 import { ApiResponse } from '../types';
+import StorageService from '../utils/storage';
 
 class ApiService {
   private async request<T>(
@@ -38,8 +39,7 @@ class ApiService {
 
   private async getAuthToken(): Promise<string | null> {
     try {
-      // This will be implemented with AsyncStorage
-      return null; // Placeholder
+      return await StorageService.getAuthToken();
     } catch (error) {
       console.error('Error getting auth token:', error);
       return null;

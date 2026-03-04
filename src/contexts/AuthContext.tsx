@@ -62,12 +62,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       }
 
       const authData = response.data as AuthResponse;
-      
+
       // Store auth data
       await StorageService.setAuthToken(authData.token);
       await StorageService.setUserData(authData);
 
-      setUser(authData as User);
+      setUser(authData as unknown as User);
       return { success: true };
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Login failed';
@@ -87,12 +87,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       }
 
       const authData = response.data as AuthResponse;
-      
+
       // Store auth data
       await StorageService.setAuthToken(authData.token);
       await StorageService.setUserData(authData);
 
-      setUser(authData as User);
+      setUser(authData as unknown as User);
       return { success: true };
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Signup failed';

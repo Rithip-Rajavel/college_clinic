@@ -11,11 +11,14 @@ import {
   Portal,
   Modal,
 } from 'react-native-paper';
+import { useNavigation } from '@react-navigation/native';
 import { useAuth } from '../../contexts/AuthContext';
 import { responsive } from '../../utils/dimensions';
 import ApiService from '../../services/api';
 
 const NurseDashboardScreen: React.FC = () => {
+  const navigation = useNavigation();
+  const { user, logout } = useAuth();
   const [stats, setStats] = useState({
     totalAppointments: 0,
     pendingAppointments: 0,
@@ -28,8 +31,6 @@ const NurseDashboardScreen: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [showQuickActions, setShowQuickActions] = useState(false);
 
-  const { user } = useAuth();
-
   useEffect(() => {
     loadDashboardData();
   }, []);
@@ -40,11 +41,11 @@ const NurseDashboardScreen: React.FC = () => {
 
       // Load appointments
       const appointmentsResponse = await ApiService.getNurseAppointments();
-      const appointments = appointmentsResponse.data || [];
+      const appointments = Array.isArray(appointmentsResponse.data) ? appointmentsResponse.data : [];
 
       // Load users
       const usersResponse = await ApiService.getAllUsers();
-      const users = usersResponse.data || [];
+      const users = Array.isArray(usersResponse.data) ? usersResponse.data : [];
 
       // Load inventory status
       const lowStockResponse = await ApiService.getLowStockItems();
@@ -54,12 +55,12 @@ const NurseDashboardScreen: React.FC = () => {
         totalAppointments: appointments.length,
         pendingAppointments: appointments.filter((a: any) => a.status === 'PENDING').length,
         totalUsers: users.length,
-        lowStockItems: lowStockResponse.data?.length || 0,
-        outOfStockItems: outOfStockResponse.data?.length || 0,
+        lowStockItems: Array.isArray(lowStockResponse.data) ? lowStockResponse.data.length : 0,
+        outOfStockItems: Array.isArray(outOfStockResponse.data) ? outOfStockResponse.data.length : 0,
       });
 
       setRecentAppointments(appointments.slice(0, 5));
-      setLowStockItems(lowStockResponse.data || []);
+      setLowStockItems(Array.isArray(lowStockResponse.data) ? lowStockResponse.data : []);
     } catch (error) {
       console.error('Error loading dashboard data:', error);
       Alert.alert('Error', 'Failed to load dashboard data');
@@ -69,18 +70,36 @@ const NurseDashboardScreen: React.FC = () => {
   };
 
   const handleQuickAppointment = () => {
-    // Navigate to appointment creation
-    console.log('Navigate to appointment creation');
+    (navigation as any).navigate('CreateAppointment');
   };
 
   const handleQuickInventory = () => {
-    // Navigate to inventory management
-    console.log('Navigate to inventory management');
+    (navigation as any).navigate('Main', { screen: 'Inventory' });
   };
 
   const handleQuickUser = () => {
-    // Navigate to user management
-    console.log('Navigate to user management');
+    (navigation as any).navigate('Main', { screen: 'Users' });
+  };
+
+  const handleLogout = () => {
+    Alert.alert(
+      'Logout',
+      'Are you sure you want to logout?',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Logout',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              await logout();
+            } catch (error) {
+              Alert.alert('Error', 'Failed to logout');
+            }
+          },
+        },
+      ]
+    );
   };
 
   const getStatusColor = (status: string) => {
@@ -247,6 +266,18 @@ const NurseDashboardScreen: React.FC = () => {
                 Add User
               </Button>
             </View>
+          </Card.Content>
+        </Card>
+
+        <Card style={styles.logoutCard}>
+          <Card.Content>
+            <Button
+              mode="outlined"
+              style={styles.logoutButton}
+              onPress={handleLogout}
+            >
+              Logout
+            </Button>
           </Card.Content>
         </Card>
       </ScrollView>
@@ -475,6 +506,16 @@ const styles = StyleSheet.create({
   },
   modalButton: {
     backgroundColor: '#3498db',
+  },
+  logoutCard: {
+    marginTop: responsive.margin.lg,
+    backgroundColor: '#fff5f5',
+    borderColor: '#ffcdd2',
+    borderWidth: 1,
+  },
+  logoutButton: {
+    borderColor: '#e74c3c',
+    color: '#e74c3c',
   },
 });
 

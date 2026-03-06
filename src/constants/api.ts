@@ -1,4 +1,4 @@
-export const API_BASE_URL = 'http://10.116.206.219:5022';
+export const API_BASE_URL = 'https://app.undefineddevelopers.online/collegeclinic';
 
 export const API_ENDPOINTS = {
   // Auth

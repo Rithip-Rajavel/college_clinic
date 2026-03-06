@@ -16,7 +16,7 @@ import { responsive } from '../../utils/dimensions';
 import StorageService from '../../utils/storage';
 
 const SettingsScreen: React.FC = () => {
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
   const [settings, setSettings] = useState({
     notifications: true,
     emailNotifications: true,
@@ -137,6 +137,28 @@ const SettingsScreen: React.FC = () => {
               Alert.alert('Success', 'Data exported successfully');
             } catch (error) {
               Alert.alert('Error', 'Failed to export data');
+            }
+          },
+        },
+      ]
+    );
+  };
+
+  const handleLogout = () => {
+    Alert.alert(
+      'Logout',
+      'Are you sure you want to logout? You will need to login again to access your account.',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Logout',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              await logout();
+              Alert.alert('Success', 'You have been logged out successfully');
+            } catch (error) {
+              Alert.alert('Error', 'Failed to logout');
             }
           },
         },
@@ -286,6 +308,16 @@ const SettingsScreen: React.FC = () => {
                 onValueChange={(value) => handleSettingChange('dataSync', value)}
               />
             )}
+          />
+
+          <Divider style={styles.divider} />
+
+          <List.Item
+            title="Logout"
+            description="Sign out of your account"
+            left={(props) => <List.Icon {...props} icon="logout" />}
+            onPress={handleLogout}
+            style={styles.dangerItem}
           />
         </Card.Content>
       </Card>

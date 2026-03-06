@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, ScrollView, Alert } from 'react-native';
+import { View, StyleSheet, ScrollView, Alert, RefreshControl } from 'react-native';
 import {
   Card,
   Title,
@@ -12,12 +12,18 @@ import {
   TextInput,
   Divider,
 } from 'react-native-paper';
+import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { RootStackParamList } from '../../navigation/AppNavigator';
 import { useAuth } from '../../contexts/AuthContext';
 import { responsive } from '../../utils/dimensions';
 import ApiService from '../../services/api';
 import { APPOINTMENT_TYPES, APPOINTMENT_STATUS } from '../../constants/api';
 
+type StaffAppointmentsNavigationProp = NativeStackNavigationProp<RootStackParamList>;
+
 const StaffAppointmentsScreen: React.FC = () => {
+  const navigation = useNavigation<StaffAppointmentsNavigationProp>();
   const [appointments, setAppointments] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [showBookingModal, setShowBookingModal] = useState(false);
@@ -29,6 +35,7 @@ const StaffAppointmentsScreen: React.FC = () => {
     notes: '',
     studentIdentifier: '',
   });
+  const [refreshing, setRefreshing] = useState(false);
 
   const { user } = useAuth();
 
@@ -40,6 +47,15 @@ const StaffAppointmentsScreen: React.FC = () => {
     try {
       setLoading(true);
       const response = await ApiService.getMyAppointments();
+
+      // Check for serialization errors in response
+      if (response.error && response.error.includes('ByteBuddyInterceptor')) {
+        console.warn('Backend serialization error detected, using empty data');
+        Alert.alert('API Error', 'There\'s a backend serialization issue. Please contact the administrator.');
+        setAppointments([]);
+        return;
+      }
+
       if (response.data && Array.isArray(response.data)) {
         setAppointments(response.data);
       } else {
@@ -47,7 +63,16 @@ const StaffAppointmentsScreen: React.FC = () => {
       }
     } catch (error) {
       console.error('Error loading appointments:', error);
-      Alert.alert('Error', 'Failed to load appointments');
+
+      // Check if it's the serialization error
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      if (errorMessage.includes('ByteBuddyInterceptor')) {
+        Alert.alert('API Error', 'Backend serialization error. The API needs to be fixed to handle Hibernate proxies properly.');
+      } else {
+        Alert.alert('Error', 'Failed to load appointments');
+      }
+
+      setAppointments([]);
     } finally {
       setLoading(false);
     }
@@ -130,6 +155,12 @@ const StaffAppointmentsScreen: React.FC = () => {
     }
   };
 
+  const onRefresh = async () => {
+    setRefreshing(true);
+    await loadAppointments();
+    setRefreshing(false);
+  };
+
   const handleCancelAppointment = async (appointmentId: number) => {
     try {
       const response = await ApiService.cancelAppointment(appointmentId);
@@ -171,8 +202,28 @@ const StaffAppointmentsScreen: React.FC = () => {
 
   return (
     <View style={styles.container}>
-      <ScrollView style={styles.scrollView} contentContainerStyle={styles.contentContainer}>
-        <Title style={styles.title}>My Appointments</Title>
+      <ScrollView
+        style={styles.scrollView}
+        contentContainerStyle={styles.contentContainer}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            colors={['#3498db']}
+            tintColor="#3498db"
+          />
+        }
+      >
+        <View style={styles.header}>
+          <Title style={styles.title}>My Appointments</Title>
+          <Button
+            mode="outlined"
+            style={styles.advancedBookingButton}
+            onPress={() => navigation.navigate('CreateAppointment', {})}
+          >
+            Advanced Booking
+          </Button>
+        </View>
 
         {appointments.length === 0 ? (
           <Card style={styles.emptyCard}>
@@ -383,6 +434,15 @@ const styles = StyleSheet.create({
     color: '#2c3e50',
     marginBottom: responsive.margin.lg,
     textAlign: 'center',
+  },
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: responsive.margin.lg,
+  },
+  advancedBookingButton: {
+    borderColor: '#3498db',
   },
   emptyCard: {
     elevation: 2,

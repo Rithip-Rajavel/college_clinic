@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, ScrollView, Alert } from 'react-native';
+import { View, StyleSheet, ScrollView, Alert, RefreshControl } from 'react-native';
 import {
   Card,
   Title,
@@ -12,14 +12,18 @@ import {
   Modal,
   TextInput,
   Divider,
+  FAB,
 } from 'react-native-paper';
+import { useNavigation } from '@react-navigation/native';
 import { responsive } from '../../utils/dimensions';
 import ApiService from '../../services/api';
 import { APPOINTMENT_STATUS, APPOINTMENT_TYPES } from '../../constants/api';
 
 const NurseAppointmentsScreen: React.FC = () => {
+  const navigation = useNavigation();
   const [appointments, setAppointments] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedStatus, setSelectedStatus] = useState('all');
   const [showUpdateModal, setShowUpdateModal] = useState(false);
@@ -39,17 +43,45 @@ const NurseAppointmentsScreen: React.FC = () => {
     try {
       setLoading(true);
       const response = await ApiService.getNurseAppointments();
+
+      console.log('Nurse appointments response:', response);
+
+      // Check for serialization errors in response
+      if (response.error && response.error.includes('ByteBuddyInterceptor')) {
+        console.warn('Backend serialization error detected, using empty data');
+        Alert.alert('API Error', 'There\'s a backend serialization issue. Please contact the administrator.');
+        setAppointments([]);
+        return;
+      }
+
       if (response.data && Array.isArray(response.data)) {
+        console.log('Setting appointments:', response.data);
         setAppointments(response.data);
       } else {
+        console.log('No appointments data found');
         setAppointments([]);
       }
     } catch (error) {
       console.error('Error loading appointments:', error);
-      Alert.alert('Error', 'Failed to load appointments');
+
+      // Check if it's the serialization error
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      if (errorMessage.includes('ByteBuddyInterceptor')) {
+        Alert.alert('API Error', 'Backend serialization error. The API needs to be fixed to handle Hibernate proxies properly.');
+      } else {
+        Alert.alert('Error', 'Failed to load appointments');
+      }
+
+      setAppointments([]);
     } finally {
       setLoading(false);
     }
+  };
+
+  const onRefresh = async () => {
+    setRefreshing(true);
+    await loadAppointments();
+    setRefreshing(false);
   };
 
   const handleUpdateAppointment = async () => {
@@ -149,7 +181,7 @@ const NurseAppointmentsScreen: React.FC = () => {
   ];
 
   const filteredAppointments = appointments.filter(appointment => {
-    const matchesSearch =
+    const matchesSearch = !searchQuery ||
       appointment.patient?.firstName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       appointment.patient?.username?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       appointment.symptoms?.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -157,12 +189,34 @@ const NurseAppointmentsScreen: React.FC = () => {
 
     const matchesStatus = selectedStatus === 'all' || appointment.status === selectedStatus;
 
+    console.log('Filtering appointment:', {
+      appointment,
+      searchQuery,
+      selectedStatus,
+      matchesSearch,
+      matchesStatus
+    });
+
     return matchesSearch && matchesStatus;
   });
 
+  console.log('Total appointments:', appointments.length);
+  console.log('Filtered appointments:', filteredAppointments.length);
+
   return (
     <View style={styles.container}>
-      <ScrollView style={styles.scrollView} contentContainerStyle={styles.contentContainer}>
+      <ScrollView
+        style={styles.scrollView}
+        contentContainerStyle={styles.contentContainer}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            colors={['#3498db']}
+            tintColor="#3498db"
+          />
+        }
+      >
         <Title style={styles.title}>Manage Appointments</Title>
         <Paragraph style={styles.subtitle}>
           View and manage all patient appointments
@@ -394,6 +448,12 @@ const NurseAppointmentsScreen: React.FC = () => {
           </View>
         </Modal>
       </Portal>
+
+      <FAB
+        icon="calendar-plus"
+        style={styles.fab}
+        onPress={() => (navigation as any).navigate('CreateAppointment')}
+      />
     </View>
   );
 };
@@ -584,6 +644,13 @@ const styles = StyleSheet.create({
     marginTop: responsive.margin.lg,
   },
   saveButton: {
+    backgroundColor: '#3498db',
+  },
+  fab: {
+    position: 'absolute',
+    margin: responsive.margin.md,
+    right: 0,
+    bottom: 0,
     backgroundColor: '#3498db',
   },
 });

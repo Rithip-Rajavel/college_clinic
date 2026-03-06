@@ -1,27 +1,80 @@
-import React from 'react';
-import { View, StyleSheet, ScrollView } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, StyleSheet, ScrollView, Alert, RefreshControl } from 'react-native';
 import { Card, Title, Paragraph, Button, Text } from 'react-native-paper';
+import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { RootStackParamList } from '../../navigation/AppNavigator';
+import { useAuth } from '../../contexts/AuthContext';
 import { responsive } from '../../utils/dimensions';
+import ApiService from '../../services/api';
+
+type StudentAppointmentsNavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
 const StudentAppointmentsScreen: React.FC = () => {
-  const appointments = [
-    {
-      id: 1,
-      date: '2024-01-15',
-      time: '10:00 AM',
-      type: 'Routine Checkup',
-      status: 'APPROVED',
-      symptoms: 'Regular checkup',
-    },
-    {
-      id: 2,
-      date: '2024-01-20',
-      time: '2:30 PM',
-      type: 'Follow Up',
-      status: 'PENDING',
-      symptoms: 'Follow up on previous treatment',
-    },
-  ];
+  const navigation = useNavigation<StudentAppointmentsNavigationProp>();
+  const { user } = useAuth();
+  const [appointments, setAppointments] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+
+  useEffect(() => {
+    loadAppointments();
+  }, []);
+
+  const loadAppointments = async () => {
+    try {
+      setLoading(true);
+      const response = await ApiService.getMyAppointments();
+
+      // Check for serialization errors in response
+      if (response.error && response.error.includes('ByteBuddyInterceptor')) {
+        console.warn('Backend serialization error detected, using empty data');
+        Alert.alert('API Error', 'There\'s a backend serialization issue. Please contact the administrator.');
+        setAppointments([]);
+        return;
+      }
+
+      if (response.data && Array.isArray(response.data)) {
+        setAppointments(response.data);
+      } else {
+        setAppointments([]);
+      }
+    } catch (error) {
+      console.error('Error loading appointments:', error);
+
+      // Check if it's the serialization error
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      if (errorMessage.includes('ByteBuddyInterceptor')) {
+        Alert.alert('API Error', 'Backend serialization error. The API needs to be fixed to handle Hibernate proxies properly.');
+      } else {
+        Alert.alert('Error', 'Failed to load appointments');
+      }
+
+      setAppointments([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleCancelAppointment = async (appointmentId: number) => {
+    try {
+      const response = await ApiService.cancelAppointment(appointmentId);
+      if (response.data) {
+        Alert.alert('Success', 'Appointment cancelled successfully');
+        loadAppointments(); // Refresh the list
+      } else {
+        Alert.alert('Error', response.error || 'Failed to cancel appointment');
+      }
+    } catch (error) {
+      Alert.alert('Error', 'Failed to cancel appointment');
+    }
+  };
+
+  const onRefresh = async () => {
+    setRefreshing(true);
+    await loadAppointments();
+    setRefreshing(false);
+  };
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -37,52 +90,85 @@ const StudentAppointmentsScreen: React.FC = () => {
   };
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
+    <ScrollView
+      style={styles.container}
+      contentContainerStyle={styles.contentContainer}
+      refreshControl={
+        <RefreshControl
+          refreshing={refreshing}
+          onRefresh={onRefresh}
+          colors={['#3498db']}
+          tintColor="#3498db"
+        />
+      }
+    >
       <View style={styles.header}>
         <Title style={styles.title}>My Appointments</Title>
         <Button
           mode="contained"
           style={styles.bookButton}
-          onPress={() => console.log('Book new appointment')}
+          onPress={() => navigation.navigate('CreateAppointment', {})}
         >
           Book New Appointment
         </Button>
       </View>
 
-      {appointments.map((appointment) => (
-        <Card key={appointment.id} style={styles.card}>
+      {loading ? (
+        <Card style={styles.card}>
           <Card.Content>
-            <View style={styles.appointmentHeader}>
-              <Title style={styles.appointmentType}>{appointment.type}</Title>
-              <Text style={[styles.status, { color: getStatusColor(appointment.status) }]}>
-                {appointment.status}
-              </Text>
-            </View>
-            <Text style={styles.dateTime}>
-              {appointment.date} at {appointment.time}
-            </Text>
-            <Paragraph style={styles.symptoms}>{appointment.symptoms}</Paragraph>
-            <View style={styles.actions}>
-              <Button
-                mode="outlined"
-                style={styles.actionButton}
-                onPress={() => console.log('View details')}
-              >
-                View Details
-              </Button>
-              {appointment.status === 'PENDING' && (
-                <Button
-                  mode="text"
-                  style={styles.cancelButton}
-                  onPress={() => console.log('Cancel appointment')}
-                >
-                  Cancel
-                </Button>
-              )}
-            </View>
+            <Text style={styles.loadingText}>Loading appointments...</Text>
           </Card.Content>
         </Card>
-      ))}
+      ) : appointments.length === 0 ? (
+        <Card style={styles.card}>
+          <Card.Content>
+            <Text style={styles.emptyText}>No appointments scheduled</Text>
+            <Paragraph style={styles.emptySubtext}>
+              Book your first appointment to get started
+            </Paragraph>
+          </Card.Content>
+        </Card>
+      ) : (
+        appointments.map((appointment) => (
+          <Card key={appointment.id} style={styles.card}>
+            <Card.Content>
+              <View style={styles.appointmentHeader}>
+                <Title style={styles.appointmentType}>{appointment.type?.replace('_', ' ') || 'Appointment'}</Title>
+                <Text style={[styles.status, { color: getStatusColor(appointment.status) }]}>
+                  {appointment.status?.replace('_', ' ') || 'UNKNOWN'}
+                </Text>
+              </View>
+              <Text style={styles.dateTime}>
+                📅 {appointment.appointmentDate ? new Date(appointment.appointmentDate).toLocaleDateString() : 'No date'}
+              </Text>
+              <Text style={styles.dateTime}>
+                🕐 {appointment.appointmentDate ? new Date(appointment.appointmentDate).toLocaleTimeString() : 'No time'}
+              </Text>
+              {appointment.symptoms && (
+                <Paragraph style={styles.symptoms}>{appointment.symptoms}</Paragraph>
+              )}
+              <View style={styles.actions}>
+                <Button
+                  mode="outlined"
+                  style={styles.actionButton}
+                  onPress={() => console.log('View details for appointment', appointment.id)}
+                >
+                  View Details
+                </Button>
+                {appointment.status === 'PENDING' && (
+                  <Button
+                    mode="text"
+                    style={styles.cancelButton}
+                    onPress={() => handleCancelAppointment(appointment.id)}
+                  >
+                    Cancel
+                  </Button>
+                )}
+              </View>
+            </Card.Content>
+          </Card>
+        ))
+      )}
     </ScrollView>
   );
 };
@@ -144,6 +230,24 @@ const styles = StyleSheet.create({
   },
   cancelButton: {
     flex: 1,
+  },
+  loadingText: {
+    textAlign: 'center',
+    color: '#7f8c8d',
+    fontSize: responsive.fontSize.md,
+    paddingVertical: responsive.padding.lg,
+  },
+  emptyText: {
+    textAlign: 'center',
+    color: '#7f8c8d',
+    fontSize: responsive.fontSize.lg,
+    fontWeight: 'bold',
+    paddingVertical: responsive.padding.md,
+  },
+  emptySubtext: {
+    textAlign: 'center',
+    color: '#95a5a6',
+    fontSize: responsive.fontSize.md,
   },
 });
 

@@ -1,11 +1,17 @@
 import React from 'react';
-import { View, StyleSheet, ScrollView } from 'react-native';
+import { View, StyleSheet, ScrollView, Alert } from 'react-native';
 import { Card, Title, Paragraph, Button, Text } from 'react-native-paper';
+import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { RootStackParamList } from '../../navigation/AppNavigator';
 import { useAuth } from '../../contexts/AuthContext';
 import { responsive } from '../../utils/dimensions';
 
+type StudentDashboardNavigationProp = NativeStackNavigationProp<RootStackParamList>;
+
 const StudentDashboardScreen: React.FC = () => {
-  const { user } = useAuth();
+  const navigation = useNavigation<StudentDashboardNavigationProp>();
+  const { user, logout } = useAuth();
 
   const upcomingAppointments = [
     { id: 1, date: '2024-01-15', time: '10:00 AM', type: 'Routine Checkup' },
@@ -16,6 +22,27 @@ const StudentDashboardScreen: React.FC = () => {
     height: user?.height || 0,
     weight: user?.weight || 0,
     lastUpdated: '2024-01-10',
+  };
+
+  const handleLogout = () => {
+    Alert.alert(
+      'Logout',
+      'Are you sure you want to logout?',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Logout',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              await logout();
+            } catch (error) {
+              Alert.alert('Error', 'Failed to logout');
+            }
+          },
+        },
+      ]
+    );
   };
 
   return (
@@ -43,7 +70,7 @@ const StudentDashboardScreen: React.FC = () => {
           <Button
             mode="contained"
             style={styles.button}
-            onPress={() => console.log('Navigate to appointments')}
+            onPress={() => (navigation as any).navigate('Main', { screen: 'Appointments' })}
           >
             View All Appointments
           </Button>
@@ -69,7 +96,7 @@ const StudentDashboardScreen: React.FC = () => {
           <Button
             mode="outlined"
             style={styles.button}
-            onPress={() => console.log('Navigate to health metrics')}
+            onPress={() => (navigation as any).navigate('Main', { screen: 'HealthMetrics' })}
           >
             Update Health Metrics
           </Button>
@@ -83,18 +110,30 @@ const StudentDashboardScreen: React.FC = () => {
             <Button
               mode="contained"
               style={[styles.quickAction, styles.bookAppointment]}
-              onPress={() => console.log('Book appointment')}
+              onPress={() => navigation.navigate('CreateAppointment', {})}
             >
               Book Appointment
             </Button>
             <Button
               mode="contained"
               style={[styles.quickAction, styles.emergencyButton]}
-              onPress={() => console.log('Emergency appointment')}
+              onPress={() => navigation.navigate('CreateAppointment', {})}
             >
               Emergency
             </Button>
           </View>
+        </Card.Content>
+      </Card>
+
+      <Card style={styles.logoutCard}>
+        <Card.Content>
+          <Button
+            mode="outlined"
+            style={styles.logoutButton}
+            onPress={handleLogout}
+          >
+            Logout
+          </Button>
         </Card.Content>
       </Card>
     </ScrollView>
@@ -180,6 +219,16 @@ const styles = StyleSheet.create({
   },
   emergencyButton: {
     backgroundColor: '#e74c3c',
+  },
+  logoutCard: {
+    marginTop: responsive.margin.lg,
+    backgroundColor: '#fff5f5',
+    borderColor: '#ffcdd2',
+    borderWidth: 1,
+  },
+  logoutButton: {
+    borderColor: '#e74c3c',
+    color: '#e74c3c',
   },
 });
 

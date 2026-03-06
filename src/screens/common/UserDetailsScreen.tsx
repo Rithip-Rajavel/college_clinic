@@ -4,7 +4,10 @@ import {
   StyleSheet,
   ScrollView,
   Alert,
+  KeyboardAvoidingView,
+  Platform,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import {
   TextInput,
   Button,
@@ -139,185 +142,192 @@ const UserDetailsScreen: React.FC<Props> = ({ route, navigation }) => {
   }
 
   return (
-    <ScrollView style={styles.container}>
-      <Card style={styles.card}>
-        <Card.Content>
-          <View style={styles.header}>
-            <Title style={styles.title}>
-              {user?.firstName && user?.lastName
-                ? `${user.firstName} ${user.lastName}`
-                : user?.username}
-            </Title>
-            <View style={styles.headerButtons}>
-              <Button
-                mode="outlined"
-                onPress={() => setIsEditing(!isEditing)}
-                style={styles.editButton}
-              >
-                {isEditing ? 'Cancel' : 'Edit'}
-              </Button>
-              {!isEditing && (
-                <Button
-                  mode="outlined"
-                  onPress={handleDeactivateUser}
-                  style={[styles.editButton, styles.deactivateButton]}
-                  textColor="#e74c3c"
-                >
-                  Deactivate
-                </Button>
-              )}
-            </View>
-          </View>
+    <SafeAreaView style={styles.container}>
+      <KeyboardAvoidingView
+        style={styles.container}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      >
+        <ScrollView style={styles.scrollView}>
+          <Card style={styles.card}>
+            <Card.Content>
+              <View style={styles.header}>
+                <Title style={styles.title}>
+                  {user?.firstName && user?.lastName
+                    ? `${user.firstName} ${user.lastName}`
+                    : user?.username}
+                </Title>
+                <View style={styles.headerButtons}>
+                  <Button
+                    mode="outlined"
+                    onPress={() => setIsEditing(!isEditing)}
+                    style={styles.editButton}
+                  >
+                    {isEditing ? 'Cancel' : 'Edit'}
+                  </Button>
+                  {!isEditing && (
+                    <Button
+                      mode="outlined"
+                      onPress={handleDeactivateUser}
+                      style={[styles.editButton, styles.deactivateButton]}
+                      textColor="#e74c3c"
+                    >
+                      Deactivate
+                    </Button>
+                  )}
+                </View>
+              </View>
 
-          {isEditing ? (
-            <View>
-              <TextInput
-                label="Username"
-                value={updateData.username}
-                onChangeText={(text) => setUpdateData(prev => ({ ...prev, username: text }))}
-                mode="outlined"
-                style={styles.input}
-              />
+              {isEditing ? (
+                <View>
+                  <TextInput
+                    label="Username"
+                    value={updateData.username}
+                    onChangeText={(text) => setUpdateData(prev => ({ ...prev, username: text }))}
+                    mode="outlined"
+                    style={styles.input}
+                  />
 
-              <TextInput
-                label="Email"
-                value={updateData.email}
-                onChangeText={(text) => setUpdateData(prev => ({ ...prev, email: text }))}
-                mode="outlined"
-                style={styles.input}
-                keyboardType="email-address"
-              />
+                  <TextInput
+                    label="Email"
+                    value={updateData.email}
+                    onChangeText={(text) => setUpdateData(prev => ({ ...prev, email: text }))}
+                    mode="outlined"
+                    style={styles.input}
+                    keyboardType="email-address"
+                  />
 
-              <TextInput
-                label="Roll Number"
-                value={updateData.rollNumber}
-                onChangeText={(text) => setUpdateData(prev => ({ ...prev, rollNumber: text }))}
-                mode="outlined"
-                style={styles.input}
-              />
+                  <TextInput
+                    label="Roll Number"
+                    value={updateData.rollNumber}
+                    onChangeText={(text) => setUpdateData(prev => ({ ...prev, rollNumber: text }))}
+                    mode="outlined"
+                    style={styles.input}
+                  />
 
-              <TextInput
-                label="Mobile Number"
-                value={updateData.mobileNumber}
-                onChangeText={(text) => setUpdateData(prev => ({ ...prev, mobileNumber: text }))}
-                mode="outlined"
-                style={styles.input}
-                keyboardType="phone-pad"
-              />
+                  <TextInput
+                    label="Mobile Number"
+                    value={updateData.mobileNumber}
+                    onChangeText={(text) => setUpdateData(prev => ({ ...prev, mobileNumber: text }))}
+                    mode="outlined"
+                    style={styles.input}
+                    keyboardType="phone-pad"
+                  />
 
-              <Text style={styles.label}>Role</Text>
-              <RadioButton.Group
-                onValueChange={(value) => setUpdateData(prev => ({ ...prev, role: value }))}
-                value={updateData.role}
-              >
-                {Object.values(USER_ROLES).map((role) => (
-                  <View key={role} style={styles.radioItem}>
-                    <RadioButton value={role} />
-                    <Text style={styles.radioLabel}>{role}</Text>
+                  <Text style={styles.label}>Role</Text>
+                  <RadioButton.Group
+                    onValueChange={(value) => setUpdateData(prev => ({ ...prev, role: value }))}
+                    value={updateData.role}
+                  >
+                    {Object.values(USER_ROLES).map((role) => (
+                      <View key={role} style={styles.radioItem}>
+                        <RadioButton value={role} />
+                        <Text style={styles.radioLabel}>{role}</Text>
+                      </View>
+                    ))}
+                  </RadioButton.Group>
+
+                  <View style={styles.row}>
+                    <TextInput
+                      label="Height (cm)"
+                      value={updateData.height}
+                      onChangeText={(text) => setUpdateData(prev => ({ ...prev, height: text }))}
+                      mode="outlined"
+                      style={[styles.input, styles.halfInput]}
+                      keyboardType="numeric"
+                    />
+                    <TextInput
+                      label="Weight (kg)"
+                      value={updateData.weight}
+                      onChangeText={(text) => setUpdateData(prev => ({ ...prev, weight: text }))}
+                      mode="outlined"
+                      style={[styles.input, styles.halfInput]}
+                      keyboardType="numeric"
+                    />
                   </View>
-                ))}
-              </RadioButton.Group>
 
-              <View style={styles.row}>
-                <TextInput
-                  label="Height (cm)"
-                  value={updateData.height}
-                  onChangeText={(text) => setUpdateData(prev => ({ ...prev, height: text }))}
-                  mode="outlined"
-                  style={[styles.input, styles.halfInput]}
-                  keyboardType="numeric"
-                />
-                <TextInput
-                  label="Weight (kg)"
-                  value={updateData.weight}
-                  onChangeText={(text) => setUpdateData(prev => ({ ...prev, weight: text }))}
-                  mode="outlined"
-                  style={[styles.input, styles.halfInput]}
-                  keyboardType="numeric"
-                />
-              </View>
+                  <TextInput
+                    label="First Name"
+                    value={updateData.firstName}
+                    onChangeText={(text) => setUpdateData(prev => ({ ...prev, firstName: text }))}
+                    mode="outlined"
+                    style={styles.input}
+                  />
 
-              <TextInput
-                label="First Name"
-                value={updateData.firstName}
-                onChangeText={(text) => setUpdateData(prev => ({ ...prev, firstName: text }))}
-                mode="outlined"
-                style={styles.input}
-              />
+                  <TextInput
+                    label="Last Name"
+                    value={updateData.lastName}
+                    onChangeText={(text) => setUpdateData(prev => ({ ...prev, lastName: text }))}
+                    mode="outlined"
+                    style={styles.input}
+                  />
 
-              <TextInput
-                label="Last Name"
-                value={updateData.lastName}
-                onChangeText={(text) => setUpdateData(prev => ({ ...prev, lastName: text }))}
-                mode="outlined"
-                style={styles.input}
-              />
+                  <Button
+                    mode="contained"
+                    onPress={handleUpdateUser}
+                    style={styles.button}
+                    loading={isLoading}
+                    disabled={isLoading}
+                  >
+                    {isLoading ? 'Updating...' : 'Update User'}
+                  </Button>
+                </View>
+              ) : (
+                <View>
+                  <View style={styles.infoRow}>
+                    <Text style={styles.label}>Username:</Text>
+                    <Text style={styles.value}>{user?.username}</Text>
+                  </View>
 
-              <Button
-                mode="contained"
-                onPress={handleUpdateUser}
-                style={styles.button}
-                loading={isLoading}
-                disabled={isLoading}
-              >
-                {isLoading ? 'Updating...' : 'Update User'}
-              </Button>
-            </View>
-          ) : (
-            <View>
-              <View style={styles.infoRow}>
-                <Text style={styles.label}>Username:</Text>
-                <Text style={styles.value}>{user?.username}</Text>
-              </View>
+                  <View style={styles.infoRow}>
+                    <Text style={styles.label}>Email:</Text>
+                    <Text style={styles.value}>{user?.email}</Text>
+                  </View>
 
-              <View style={styles.infoRow}>
-                <Text style={styles.label}>Email:</Text>
-                <Text style={styles.value}>{user?.email}</Text>
-              </View>
+                  <View style={styles.infoRow}>
+                    <Text style={styles.label}>Roll Number:</Text>
+                    <Text style={styles.value}>{user?.rollNumber}</Text>
+                  </View>
 
-              <View style={styles.infoRow}>
-                <Text style={styles.label}>Roll Number:</Text>
-                <Text style={styles.value}>{user?.rollNumber}</Text>
-              </View>
+                  <View style={styles.infoRow}>
+                    <Text style={styles.label}>Mobile Number:</Text>
+                    <Text style={styles.value}>{user?.mobileNumber}</Text>
+                  </View>
 
-              <View style={styles.infoRow}>
-                <Text style={styles.label}>Mobile Number:</Text>
-                <Text style={styles.value}>{user?.mobileNumber}</Text>
-              </View>
+                  <View style={styles.infoRow}>
+                    <Text style={styles.label}>Role:</Text>
+                    <Text style={styles.value}>{user?.role}</Text>
+                  </View>
 
-              <View style={styles.infoRow}>
-                <Text style={styles.label}>Role:</Text>
-                <Text style={styles.value}>{user?.role}</Text>
-              </View>
+                  <View style={styles.infoRow}>
+                    <Text style={styles.label}>Height/Weight:</Text>
+                    <Text style={styles.value}>{user?.height}cm / {user?.weight}kg</Text>
+                  </View>
 
-              <View style={styles.infoRow}>
-                <Text style={styles.label}>Height/Weight:</Text>
-                <Text style={styles.value}>{user?.height}cm / {user?.weight}kg</Text>
-              </View>
+                  <View style={styles.infoRow}>
+                    <Text style={styles.label}>Status:</Text>
+                    <Text style={[
+                      styles.value,
+                      user?.active ? styles.active : styles.inactive
+                    ]}>
+                      {user?.active ? 'Active' : 'Inactive'}
+                    </Text>
+                  </View>
 
-              <View style={styles.infoRow}>
-                <Text style={styles.label}>Status:</Text>
-                <Text style={[
-                  styles.value,
-                  user?.active ? styles.active : styles.inactive
-                ]}>
-                  {user?.active ? 'Active' : 'Inactive'}
-                </Text>
-              </View>
-
-              <View style={styles.infoRow}>
-                <Text style={styles.label}>Account Status:</Text>
-                <Text style={styles.value}>
-                  {user?.accountNonExpired && user?.credentialsNonExpired && user?.accountNonLocked
-                    ? 'All Good'
-                    : 'Issues Found'}
-                </Text>
-              </View>
-            </View>
-          )}
-        </Card.Content>
-      </Card>
-    </ScrollView>
+                  <View style={styles.infoRow}>
+                    <Text style={styles.label}>Account Status:</Text>
+                    <Text style={styles.value}>
+                      {user?.accountNonExpired && user?.credentialsNonExpired && user?.accountNonLocked
+                        ? 'All Good'
+                        : 'Issues Found'}
+                    </Text>
+                  </View>
+                </View>
+              )}
+            </Card.Content>
+          </Card>
+        </ScrollView>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 };
 

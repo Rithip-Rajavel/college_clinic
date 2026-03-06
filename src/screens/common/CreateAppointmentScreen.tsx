@@ -4,7 +4,10 @@ import {
   StyleSheet,
   ScrollView,
   Alert,
+  KeyboardAvoidingView,
+  Platform,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import {
   TextInput,
   Button,
@@ -14,7 +17,9 @@ import {
   RadioButton,
   Divider,
 } from 'react-native-paper';
+import { DatePickerInput } from 'react-native-paper-dates';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { useAuth } from '../../contexts/AuthContext';
 import { responsive } from '../../utils/dimensions';
 import ApiService from '../../services/api';
 import { APPOINTMENT_TYPES } from '../../constants/api';
@@ -23,10 +28,11 @@ type Props = NativeStackScreenProps<any, 'CreateAppointment'>;
 
 const CreateAppointmentScreen: React.FC<Props> = ({ route, navigation }) => {
   const { userId } = route.params || {};
-  
+  const { user } = useAuth();
+
   const [appointmentData, setAppointmentData] = useState({
-    patientId: userId || '',
-    appointmentDate: '',
+    patientId: userId || user?.id?.toString() || '',
+    appointmentDate: new Date().toISOString(),
     type: 'ROUTINE_CHECKUP',
     symptoms: '',
     notes: '',
@@ -42,7 +48,7 @@ const CreateAppointmentScreen: React.FC<Props> = ({ route, navigation }) => {
     try {
       setIsLoading(true);
       const response = await ApiService.createAppointment(appointmentData);
-      
+
       if (response.data) {
         Alert.alert('Success', 'Appointment created successfully');
         navigation.goBack();
@@ -57,77 +63,90 @@ const CreateAppointmentScreen: React.FC<Props> = ({ route, navigation }) => {
   };
 
   return (
-    <ScrollView style={styles.container}>
-      <Card style={styles.card}>
-        <Card.Content>
-          <Title style={styles.title}>Book Appointment</Title>
-          
-          <TextInput
-            label="Patient ID"
-            value={appointmentData.patientId}
-            onChangeText={(text) => setAppointmentData(prev => ({ ...prev, patientId: text }))}
-            mode="outlined"
-            style={styles.input}
-            keyboardType="numeric"
-            disabled={!!userId}
-          />
+    <SafeAreaView style={styles.container}>
+      <KeyboardAvoidingView
+        style={styles.container}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      >
+        <ScrollView style={styles.scrollView}>
+          <Card style={styles.card}>
+            <Card.Content>
+              <Title style={styles.title}>Book Appointment</Title>
 
-          <TextInput
-            label="Appointment Date & Time"
-            value={appointmentData.appointmentDate}
-            onChangeText={(text) => setAppointmentData(prev => ({ ...prev, appointmentDate: text }))}
-            mode="outlined"
-            style={styles.input}
-            placeholder="YYYY-MM-DD HH:MM"
-          />
+              <TextInput
+                label="Patient ID"
+                value={appointmentData.patientId}
+                onChangeText={(text) => setAppointmentData(prev => ({ ...prev, patientId: text }))}
+                mode="outlined"
+                style={styles.input}
+                keyboardType="numeric"
+                disabled={!!user}
+                editable={!user}
+              />
 
-          <Text style={styles.label}>Appointment Type</Text>
-          <RadioButton.Group
-            onValueChange={(value) => setAppointmentData(prev => ({ ...prev, type: value }))}
-            value={appointmentData.type}
-          >
-            {Object.values(APPOINTMENT_TYPES).map((type) => (
-              <View key={type} style={styles.radioItem}>
-                <RadioButton value={type} />
-                <Text style={styles.radioLabel}>{type.replace('_', ' ')}</Text>
-              </View>
-            ))}
-          </RadioButton.Group>
+              <Text style={styles.label}>Appointment Date & Time</Text>
+              <DatePickerInput
+                locale="en"
+                mode="outlined"
+                label="Select Date & Time"
+                value={new Date(appointmentData.appointmentDate)}
+                onChange={(date) => setAppointmentData(prev => ({
+                  ...prev,
+                  appointmentDate: date ? date.toISOString() : new Date().toISOString()
+                }))}
+                style={styles.input}
+                inputMode="start"
+              />
 
-          <TextInput
-            label="Symptoms"
-            value={appointmentData.symptoms}
-            onChangeText={(text) => setAppointmentData(prev => ({ ...prev, symptoms: text }))}
-            mode="outlined"
-            style={styles.input}
-            multiline
-            numberOfLines={3}
-            placeholder="Describe your symptoms..."
-          />
+              <Text style={styles.label}>Appointment Type</Text>
+              <RadioButton.Group
+                onValueChange={(value) => setAppointmentData(prev => ({ ...prev, type: value }))}
+                value={appointmentData.type}
+              >
+                {Object.values(APPOINTMENT_TYPES).map((type) => (
+                  <View key={type} style={styles.radioItem}>
+                    <RadioButton value={type} />
+                    <Text style={styles.radioLabel}>{type.replace('_', ' ')}</Text>
+                  </View>
+                ))}
+              </RadioButton.Group>
 
-          <TextInput
-            label="Additional Notes"
-            value={appointmentData.notes}
-            onChangeText={(text) => setAppointmentData(prev => ({ ...prev, notes: text }))}
-            mode="outlined"
-            style={styles.input}
-            multiline
-            numberOfLines={2}
-            placeholder="Any additional information..."
-          />
+              <TextInput
+                label="Symptoms"
+                value={appointmentData.symptoms}
+                onChangeText={(text) => setAppointmentData(prev => ({ ...prev, symptoms: text }))}
+                mode="outlined"
+                style={styles.input}
+                multiline
+                numberOfLines={3}
+                placeholder="Describe your symptoms..."
+              />
 
-          <Button
-            mode="contained"
-            onPress={handleCreateAppointment}
-            style={styles.button}
-            loading={isLoading}
-            disabled={isLoading}
-          >
-            {isLoading ? 'Creating...' : 'Book Appointment'}
-          </Button>
-        </Card.Content>
-      </Card>
-    </ScrollView>
+              <TextInput
+                label="Additional Notes"
+                value={appointmentData.notes}
+                onChangeText={(text) => setAppointmentData(prev => ({ ...prev, notes: text }))}
+                mode="outlined"
+                style={styles.input}
+                multiline
+                numberOfLines={2}
+                placeholder="Any additional information..."
+              />
+
+              <Button
+                mode="contained"
+                onPress={handleCreateAppointment}
+                style={styles.button}
+                loading={isLoading}
+                disabled={isLoading}
+              >
+                {isLoading ? 'Creating...' : 'Book Appointment'}
+              </Button>
+            </Card.Content>
+          </Card>
+        </ScrollView>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 };
 
@@ -135,11 +154,14 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#f5f5f5',
-    padding: responsive.padding.md,
+  },
+  scrollView: {
+    flex: 1,
   },
   card: {
     elevation: 4,
     borderRadius: responsive.borderRadius.lg,
+    margin: responsive.padding.md,
   },
   title: {
     textAlign: 'center',

@@ -15,10 +15,12 @@ import {
   ProgressBar,
   Divider,
 } from 'react-native-paper';
+import { useNavigation } from '@react-navigation/native';
 import { responsive } from '../../utils/dimensions';
 import ApiService from '../../services/api';
 
 const NurseInventoryScreen: React.FC = () => {
+  const navigation = useNavigation();
   const [inventory, setInventory] = useState<any[]>([]);
   const [lowStockItems, setLowStockItems] = useState<any[]>([]);
   const [outOfStockItems, setOutOfStockItems] = useState<any[]>([]);

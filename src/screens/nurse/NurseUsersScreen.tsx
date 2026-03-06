@@ -14,11 +14,13 @@ import {
   FAB,
   Divider,
 } from 'react-native-paper';
+import { useNavigation } from '@react-navigation/native';
 import { responsive } from '../../utils/dimensions';
 import ApiService from '../../services/api';
 import { USER_ROLES } from '../../constants/api';
 
 const NurseUsersScreen: React.FC = () => {
+  const navigation = useNavigation();
   const [users, setUsers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
@@ -124,8 +126,7 @@ const NurseUsersScreen: React.FC = () => {
   };
 
   const handleViewUserDetails = (user: any) => {
-    setSelectedUser(user);
-    setShowUserDetailsModal(true);
+    (navigation as any).navigate('UserDetails', { userId: user.id });
   };
 
   const resetNewUserData = () => {

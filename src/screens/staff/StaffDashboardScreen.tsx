@@ -1,16 +1,37 @@
 import React from 'react';
-import { View, StyleSheet, ScrollView } from 'react-native';
+import { View, StyleSheet, ScrollView, Alert } from 'react-native';
 import { Card, Title, Paragraph, Button, Text } from 'react-native-paper';
 import { useAuth } from '../../contexts/AuthContext';
 import { responsive } from '../../utils/dimensions';
 
 const StaffDashboardScreen: React.FC = () => {
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
 
   const upcomingAppointments = [
     { id: 1, date: '2024-01-15', time: '10:00 AM', type: 'Routine Checkup' },
     { id: 2, date: '2024-01-20', time: '2:30 PM', type: 'Follow Up' },
   ];
+
+  const handleLogout = () => {
+    Alert.alert(
+      'Logout',
+      'Are you sure you want to logout?',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Logout',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              await logout();
+            } catch (error) {
+              Alert.alert('Error', 'Failed to logout');
+            }
+          },
+        },
+      ]
+    );
+  };
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
@@ -38,6 +59,18 @@ const StaffDashboardScreen: React.FC = () => {
           <Button mode="contained" style={styles.button}>Book for Student</Button>
         </Card.Content>
       </Card>
+
+      <Card style={styles.logoutCard}>
+        <Card.Content>
+          <Button
+            mode="outlined"
+            style={styles.logoutButton}
+            onPress={handleLogout}
+          >
+            Logout
+          </Button>
+        </Card.Content>
+      </Card>
     </ScrollView>
   );
 };
@@ -51,6 +84,16 @@ const styles = StyleSheet.create({
   card: { marginBottom: responsive.margin.md, elevation: 2 },
   appointmentItem: { marginBottom: responsive.margin.sm },
   button: { marginTop: responsive.margin.sm },
+  logoutCard: {
+    marginTop: responsive.margin.lg,
+    backgroundColor: '#fff5f5',
+    borderColor: '#ffcdd2',
+    borderWidth: 1,
+  },
+  logoutButton: {
+    borderColor: '#e74c3c',
+    color: '#e74c3c',
+  },
 });
 
 export default StaffDashboardScreen;

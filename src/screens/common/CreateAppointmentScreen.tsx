@@ -15,11 +15,11 @@ import {
   Card,
   Title,
   RadioButton,
-  Divider,
 } from 'react-native-paper';
 import { DatePickerInput } from 'react-native-paper-dates';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useAuth } from '../../contexts/AuthContext';
+import { useTheme } from '../../contexts/ThemeContext';
 import { responsive } from '../../utils/dimensions';
 import ApiService from '../../services/api';
 import { APPOINTMENT_TYPES } from '../../constants/api';
@@ -29,6 +29,8 @@ type Props = NativeStackScreenProps<any, 'CreateAppointment'>;
 const CreateAppointmentScreen: React.FC<Props> = ({ route, navigation }) => {
   const { userId } = route.params || {};
   const { user } = useAuth();
+  const { colors } = useTheme();
+  const s = makeStyles(colors);
 
   const [appointmentData, setAppointmentData] = useState({
     patientId: userId || user?.id?.toString() || '',
@@ -47,7 +49,10 @@ const CreateAppointmentScreen: React.FC<Props> = ({ route, navigation }) => {
 
     try {
       setIsLoading(true);
-      const response = await ApiService.createAppointment(appointmentData);
+      const response = await ApiService.createAppointment({
+        ...appointmentData,
+        patientId: Number(appointmentData.patientId),
+      });
 
       if (response.data) {
         Alert.alert('Success', 'Appointment created successfully');
@@ -55,7 +60,7 @@ const CreateAppointmentScreen: React.FC<Props> = ({ route, navigation }) => {
       } else {
         Alert.alert('Error', response.error || 'Failed to create appointment');
       }
-    } catch (error) {
+    } catch {
       Alert.alert('Error', 'An unexpected error occurred');
     } finally {
       setIsLoading(false);
@@ -63,28 +68,25 @@ const CreateAppointmentScreen: React.FC<Props> = ({ route, navigation }) => {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
-      <KeyboardAvoidingView
-        style={styles.container}
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      >
-        <ScrollView style={styles.scrollView}>
-          <Card style={styles.card}>
+    <SafeAreaView style={s.container}>
+      <KeyboardAvoidingView style={s.container} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+        <ScrollView style={s.scrollView}>
+          <Card style={s.card}>
             <Card.Content>
-              <Title style={styles.title}>Book Appointment</Title>
+              <Title style={s.title}>Book Appointment</Title>
 
               <TextInput
                 label="Patient ID"
                 value={appointmentData.patientId}
                 onChangeText={(text) => setAppointmentData(prev => ({ ...prev, patientId: text }))}
                 mode="outlined"
-                style={styles.input}
+                style={s.input}
                 keyboardType="numeric"
                 disabled={!!user}
                 editable={!user}
               />
 
-              <Text style={styles.label}>Appointment Date & Time</Text>
+              <Text style={s.label}>Appointment Date & Time</Text>
               <DatePickerInput
                 locale="en"
                 mode="outlined"
@@ -94,19 +96,19 @@ const CreateAppointmentScreen: React.FC<Props> = ({ route, navigation }) => {
                   ...prev,
                   appointmentDate: date ? date.toISOString() : new Date().toISOString()
                 }))}
-                style={styles.input}
+                style={s.input}
                 inputMode="start"
               />
 
-              <Text style={styles.label}>Appointment Type</Text>
+              <Text style={s.label}>Appointment Type</Text>
               <RadioButton.Group
                 onValueChange={(value) => setAppointmentData(prev => ({ ...prev, type: value }))}
                 value={appointmentData.type}
               >
                 {Object.values(APPOINTMENT_TYPES).map((type) => (
-                  <View key={type} style={styles.radioItem}>
+                  <View key={type} style={s.radioItem}>
                     <RadioButton value={type} />
-                    <Text style={styles.radioLabel}>{type.replace('_', ' ')}</Text>
+                    <Text style={s.radioLabel}>{type.replace(/_/g, ' ')}</Text>
                   </View>
                 ))}
               </RadioButton.Group>
@@ -116,7 +118,7 @@ const CreateAppointmentScreen: React.FC<Props> = ({ route, navigation }) => {
                 value={appointmentData.symptoms}
                 onChangeText={(text) => setAppointmentData(prev => ({ ...prev, symptoms: text }))}
                 mode="outlined"
-                style={styles.input}
+                style={s.input}
                 multiline
                 numberOfLines={3}
                 placeholder="Describe your symptoms..."
@@ -127,7 +129,7 @@ const CreateAppointmentScreen: React.FC<Props> = ({ route, navigation }) => {
                 value={appointmentData.notes}
                 onChangeText={(text) => setAppointmentData(prev => ({ ...prev, notes: text }))}
                 mode="outlined"
-                style={styles.input}
+                style={s.input}
                 multiline
                 numberOfLines={2}
                 placeholder="Any additional information..."
@@ -136,7 +138,7 @@ const CreateAppointmentScreen: React.FC<Props> = ({ route, navigation }) => {
               <Button
                 mode="contained"
                 onPress={handleCreateAppointment}
-                style={styles.button}
+                style={s.button}
                 loading={isLoading}
                 disabled={isLoading}
               >
@@ -150,34 +152,28 @@ const CreateAppointmentScreen: React.FC<Props> = ({ route, navigation }) => {
   );
 };
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#f5f5f5',
-  },
-  scrollView: {
-    flex: 1,
-  },
+const makeStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.create({
+  container: { flex: 1, backgroundColor: colors.background },
+  scrollView: { flex: 1 },
   card: {
     elevation: 4,
     borderRadius: responsive.borderRadius.lg,
     margin: responsive.padding.md,
+    backgroundColor: colors.card,
   },
   title: {
     textAlign: 'center',
     fontSize: responsive.fontSize.xl,
     fontWeight: 'bold',
     marginBottom: responsive.margin.lg,
-    color: '#2c3e50',
+    color: colors.text,
   },
-  input: {
-    marginBottom: responsive.margin.md,
-  },
+  input: { marginBottom: responsive.margin.md },
   label: {
     fontSize: responsive.fontSize.md,
     fontWeight: 'bold',
     marginBottom: responsive.margin.sm,
-    color: '#2c3e50',
+    color: colors.text,
   },
   radioItem: {
     flexDirection: 'row',
@@ -187,10 +183,12 @@ const styles = StyleSheet.create({
   radioLabel: {
     fontSize: responsive.fontSize.md,
     marginLeft: responsive.margin.sm,
+    color: colors.text,
   },
   button: {
     paddingVertical: responsive.padding.sm,
     marginTop: responsive.margin.lg,
+    backgroundColor: colors.primary,
   },
 });
 

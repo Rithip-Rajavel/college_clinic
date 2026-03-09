@@ -4,6 +4,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { useAuth } from '../contexts/AuthContext';
+import { useTheme } from '../contexts/ThemeContext';
 import { USER_ROLES } from '../constants/api';
 import { responsive } from '../utils/dimensions';
 
@@ -245,6 +246,7 @@ const AuthNavigator: React.FC = () => {
 // Root Navigator
 const AppNavigator: React.FC = () => {
   const { isAuthenticated, isLoading } = useAuth();
+  const { paperTheme, colors } = useTheme();
 
   if (isLoading) {
     // You can add a loading screen here
@@ -252,8 +254,13 @@ const AppNavigator: React.FC = () => {
   }
 
   return (
-    <NavigationContainer>
-      <Stack.Navigator screenOptions={{ headerShown: false }}>
+    <NavigationContainer theme={paperTheme as any}>
+      <Stack.Navigator 
+        screenOptions={{ 
+          headerShown: false,
+          contentStyle: { backgroundColor: colors.background }
+        }}
+      >
         {isAuthenticated ? (
           <>
             <Stack.Screen name="Main" component={MainNavigator} />
@@ -263,7 +270,9 @@ const AppNavigator: React.FC = () => {
               options={{
                 headerShown: true,
                 title: 'Profile',
-                presentation: 'modal'
+                presentation: 'modal',
+                headerStyle: { backgroundColor: colors.surface },
+                headerTintColor: colors.text,
               }}
             />
             <Stack.Screen
@@ -272,7 +281,9 @@ const AppNavigator: React.FC = () => {
               options={{
                 headerShown: true,
                 title: 'Settings',
-                presentation: 'modal'
+                presentation: 'modal',
+                headerStyle: { backgroundColor: colors.surface },
+                headerTintColor: colors.text,
               }}
             />
             <Stack.Screen
@@ -281,7 +292,9 @@ const AppNavigator: React.FC = () => {
               options={{
                 headerShown: true,
                 title: 'Book Appointment',
-                presentation: 'modal'
+                presentation: 'modal',
+                headerStyle: { backgroundColor: colors.surface },
+                headerTintColor: colors.text,
               }}
             />
             <Stack.Screen
@@ -290,7 +303,9 @@ const AppNavigator: React.FC = () => {
               options={{
                 headerShown: true,
                 title: 'Inventory Details',
-                presentation: 'modal'
+                presentation: 'modal',
+                headerStyle: { backgroundColor: colors.surface },
+                headerTintColor: colors.text,
               }}
             />
             <Stack.Screen
@@ -299,7 +314,9 @@ const AppNavigator: React.FC = () => {
               options={{
                 headerShown: true,
                 title: 'User Details',
-                presentation: 'modal'
+                presentation: 'modal',
+                headerStyle: { backgroundColor: colors.surface },
+                headerTintColor: colors.text,
               }}
             />
           </>

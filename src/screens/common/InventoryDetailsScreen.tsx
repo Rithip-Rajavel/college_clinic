@@ -1,3 +1,4 @@
+import { useTheme } from '../../contexts/ThemeContext';
 import React, { useState, useEffect } from 'react';
 import {
   View,
@@ -20,6 +21,8 @@ import ApiService from '../../services/api';
 type Props = NativeStackScreenProps<any, 'InventoryDetails'>;
 
 const InventoryDetailsScreen: React.FC<Props> = ({ route, navigation }) => {
+  const { colors } = useTheme();
+  const styles = makeStyles(colors);
   const { inventoryId } = route.params || {};
 
   const [inventory, setInventory] = useState<any>(null);
@@ -279,10 +282,10 @@ const InventoryDetailsScreen: React.FC<Props> = ({ route, navigation }) => {
   );
 };
 
-const styles = StyleSheet.create({
+const makeStyles = (colors: any) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: colors.background,
     padding: responsive.padding.md,
   },
   loadingContainer: {
@@ -303,7 +306,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: responsive.fontSize.xl,
     fontWeight: 'bold',
-    color: '#2c3e50',
+    color: colors.text,
     flex: 1,
   },
   editButton: {
@@ -322,19 +325,19 @@ const styles = StyleSheet.create({
   label: {
     fontSize: responsive.fontSize.md,
     fontWeight: 'bold',
-    color: '#7f8c8d',
+    color: colors.textSecondary,
     marginBottom: responsive.margin.xs,
   },
   value: {
     fontSize: responsive.fontSize.md,
-    color: '#2c3e50',
+    color: colors.text,
   },
   lowStock: {
     color: '#f39c12',
     fontWeight: 'bold',
   },
   outOfStock: {
-    color: '#e74c3c',
+    color: colors.danger,
     fontWeight: 'bold',
   },
   stockButtons: {

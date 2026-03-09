@@ -5,6 +5,7 @@ import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../../navigation/AppNavigator';
 import { useAuth } from '../../contexts/AuthContext';
+import { useTheme } from '../../contexts/ThemeContext';
 import { responsive } from '../../utils/dimensions';
 
 type StudentDashboardNavigationProp = NativeStackNavigationProp<RootStackParamList>;
@@ -12,6 +13,8 @@ type StudentDashboardNavigationProp = NativeStackNavigationProp<RootStackParamLi
 const StudentDashboardScreen: React.FC = () => {
   const navigation = useNavigation<StudentDashboardNavigationProp>();
   const { user, logout } = useAuth();
+  const { colors } = useTheme();
+  const styles = makeStyles(colors);
 
   const upcomingAppointments = [
     { id: 1, date: '2024-01-15', time: '10:00 AM', type: 'Routine Checkup' },
@@ -140,10 +143,10 @@ const StudentDashboardScreen: React.FC = () => {
   );
 };
 
-const styles = StyleSheet.create({
+const makeStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: colors.background,
   },
   contentContainer: {
     padding: responsive.padding.md,
@@ -154,31 +157,32 @@ const styles = StyleSheet.create({
   },
   welcomeText: {
     fontSize: responsive.fontSize.xl,
-    color: '#2c3e50',
+    color: colors.text,
   },
   userName: {
     fontSize: responsive.fontSize.lg,
-    color: '#7f8c8d',
+    color: colors.textSecondary,
     marginTop: responsive.margin.xs,
   },
   card: {
     marginBottom: responsive.margin.md,
     elevation: 2,
+    backgroundColor: colors.card,
   },
   appointmentItem: {
     marginBottom: responsive.margin.sm,
     paddingVertical: responsive.padding.xs,
     borderBottomWidth: 1,
-    borderBottomColor: '#eee',
+    borderBottomColor: colors.divider,
   },
   appointmentType: {
     fontSize: responsive.fontSize.md,
     fontWeight: 'bold',
-    color: '#2c3e50',
+    color: colors.text,
   },
   appointmentDate: {
     fontSize: responsive.fontSize.sm,
-    color: '#7f8c8d',
+    color: colors.textSecondary,
     marginTop: responsive.margin.xs,
   },
   metricsContainer: {
@@ -191,17 +195,17 @@ const styles = StyleSheet.create({
   },
   metricLabel: {
     fontSize: responsive.fontSize.sm,
-    color: '#7f8c8d',
+    color: colors.textSecondary,
     marginBottom: responsive.margin.xs,
   },
   metricValue: {
     fontSize: responsive.fontSize.lg,
     fontWeight: 'bold',
-    color: '#2c3e50',
+    color: colors.text,
   },
   lastUpdated: {
     fontSize: responsive.fontSize.xs,
-    color: '#7f8c8d',
+    color: colors.textSecondary,
     textAlign: 'center',
     marginBottom: responsive.margin.sm,
   },
@@ -215,20 +219,20 @@ const styles = StyleSheet.create({
     marginBottom: responsive.margin.sm,
   },
   bookAppointment: {
-    backgroundColor: '#3498db',
+    backgroundColor: colors.primary,
   },
   emergencyButton: {
-    backgroundColor: '#e74c3c',
+    backgroundColor: colors.danger,
   },
   logoutCard: {
     marginTop: responsive.margin.lg,
-    backgroundColor: '#fff5f5',
-    borderColor: '#ffcdd2',
+    backgroundColor: colors.card,
+    borderColor: colors.danger + '40',
     borderWidth: 1,
   },
   logoutButton: {
-    borderColor: '#e74c3c',
-    color: '#e74c3c',
+    borderColor: colors.danger,
+    color: colors.danger,
   },
 });
 

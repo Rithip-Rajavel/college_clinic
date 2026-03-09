@@ -1,3 +1,4 @@
+import { useTheme } from '../../contexts/ThemeContext';
 import React, { useState, useEffect } from 'react';
 import {
   View,
@@ -25,6 +26,8 @@ import { USER_ROLES } from '../../constants/api';
 type Props = NativeStackScreenProps<any, 'UserDetails'>;
 
 const UserDetailsScreen: React.FC<Props> = ({ route, navigation }) => {
+  const { colors } = useTheme();
+  const styles = makeStyles(colors);
   const { userId } = route.params || {};
 
   const [user, setUser] = useState<any>(null);
@@ -331,11 +334,14 @@ const UserDetailsScreen: React.FC<Props> = ({ route, navigation }) => {
   );
 };
 
-const styles = StyleSheet.create({
+const makeStyles = (colors: any) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: colors.background,
     padding: responsive.padding.md,
+  },
+  scrollView: {
+    flex: 1,
   },
   loadingContainer: {
     flex: 1,
@@ -352,7 +358,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: responsive.fontSize.xl,
     fontWeight: 'bold',
-    color: '#2c3e50',
+    color: colors.text,
     marginBottom: responsive.margin.md,
   },
   headerButtons: {
@@ -362,7 +368,7 @@ const styles = StyleSheet.create({
     marginLeft: responsive.margin.sm,
   },
   deactivateButton: {
-    borderColor: '#e74c3c',
+    borderColor: colors.danger,
   },
   input: {
     marginBottom: responsive.margin.md,
@@ -378,7 +384,7 @@ const styles = StyleSheet.create({
   label: {
     fontSize: responsive.fontSize.md,
     fontWeight: 'bold',
-    color: '#7f8c8d',
+    color: colors.textSecondary,
     marginBottom: responsive.margin.xs,
   },
   radioItem: {
@@ -399,14 +405,14 @@ const styles = StyleSheet.create({
   },
   value: {
     fontSize: responsive.fontSize.md,
-    color: '#2c3e50',
+    color: colors.text,
   },
   active: {
-    color: '#27ae60',
+    color: colors.success,
     fontWeight: 'bold',
   },
   inactive: {
-    color: '#e74c3c',
+    color: colors.danger,
     fontWeight: 'bold',
   },
 });

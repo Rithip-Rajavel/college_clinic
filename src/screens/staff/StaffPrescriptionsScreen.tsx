@@ -11,9 +11,12 @@ import {
 } from 'react-native-paper';
 import { useAuth } from '../../contexts/AuthContext';
 import { responsive } from '../../utils/dimensions';
+import { useTheme } from '../../contexts/ThemeContext';
 import ApiService from '../../services/api';
 
 const StaffPrescriptionsScreen: React.FC = () => {
+  const { colors } = useTheme();
+  const styles = makeStyles(colors);
   const [prescriptions, setPrescriptions] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
@@ -195,10 +198,10 @@ Issued by: Campus Health System
   );
 };
 
-const styles = StyleSheet.create({
+const makeStyles = (colors: any) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: colors.background,
   },
   scrollView: {
     flex: 1,
@@ -208,13 +211,13 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: responsive.fontSize.xl,
-    color: '#2c3e50',
+    color: colors.text,
     marginBottom: responsive.margin.sm,
     textAlign: 'center',
   },
   subtitle: {
     fontSize: responsive.fontSize.md,
-    color: '#7f8c8d',
+    color: colors.textSecondary,
     textAlign: 'center',
     marginBottom: responsive.margin.lg,
   },
@@ -232,13 +235,13 @@ const styles = StyleSheet.create({
   },
   emptyText: {
     fontSize: responsive.fontSize.lg,
-    color: '#7f8c8d',
+    color: colors.textSecondary,
     marginBottom: responsive.margin.sm,
     textAlign: 'center',
   },
   emptySubtext: {
     fontSize: responsive.fontSize.md,
-    color: '#95a5a6',
+    color: colors.textMuted,
     textAlign: 'center',
   },
   prescriptionCard: {
@@ -257,12 +260,12 @@ const styles = StyleSheet.create({
   prescriptionType: {
     fontSize: responsive.fontSize.md,
     fontWeight: 'bold',
-    color: '#2c3e50',
+    color: colors.text,
     marginBottom: responsive.margin.xs,
   },
   prescriptionDate: {
     fontSize: responsive.fontSize.sm,
-    color: '#7f8c8d',
+    color: colors.textSecondary,
   },
   shareButton: {
     borderColor: '#3498db',
@@ -279,7 +282,7 @@ const styles = StyleSheet.create({
   detailLabel: {
     fontSize: responsive.fontSize.sm,
     fontWeight: 'bold',
-    color: '#2c3e50',
+    color: colors.text,
     marginBottom: responsive.margin.xs,
   },
   detailValue: {
@@ -289,8 +292,8 @@ const styles = StyleSheet.create({
   },
   prescriptionText: {
     fontSize: responsive.fontSize.md,
-    color: '#2c3e50',
-    backgroundColor: '#f8f9fa',
+    color: colors.text,
+    backgroundColor: colors.surfaceVariant,
     padding: responsive.padding.md,
     borderRadius: responsive.borderRadius.md,
     lineHeight: responsive.fontSize.lg,
@@ -303,7 +306,7 @@ const styles = StyleSheet.create({
     marginTop: responsive.margin.md,
   },
   shareMainButton: {
-    backgroundColor: '#3498db',
+    backgroundColor: colors.primary,
   },
 });
 

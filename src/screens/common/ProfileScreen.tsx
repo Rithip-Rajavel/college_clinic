@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, ScrollView, Alert } from 'react-native';
+import { View, StyleSheet, ScrollView, Alert, Linking, TouchableOpacity, Switch, FlatList } from 'react-native';
+import { useTheme } from '../../contexts/ThemeContext';
 import {
   Card,
   Title,
@@ -16,6 +17,8 @@ import { responsive, widthScale } from '../../utils/dimensions';
 import StorageService from '../../utils/storage';
 
 const ProfileScreen: React.FC = () => {
+  const { colors } = useTheme();
+  const styles = makeStyles(colors);
   const { user, logout } = useAuth();
   const [isEditing, setIsEditing] = useState(false);
   const [editData, setEditData] = useState({
@@ -359,10 +362,10 @@ const ProfileScreen: React.FC = () => {
   );
 };
 
-const styles = StyleSheet.create({
+const makeStyles = (colors: any) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: colors.background,
   },
   contentContainer: {
     padding: responsive.padding.md,
@@ -380,7 +383,7 @@ const styles = StyleSheet.create({
   },
   userName: {
     fontSize: responsive.fontSize.xl,
-    color: '#2c3e50',
+    color: colors.text,
     marginBottom: responsive.margin.xs,
   },
   roleContainer: {
@@ -407,7 +410,7 @@ const styles = StyleSheet.create({
   },
   cardTitle: {
     fontSize: responsive.fontSize.lg,
-    color: '#2c3e50',
+    color: colors.text,
   },
   infoSection: {
     marginBottom: responsive.margin.md,
@@ -421,7 +424,7 @@ const styles = StyleSheet.create({
   infoLabel: {
     fontSize: responsive.fontSize.md,
     fontWeight: 'bold',
-    color: '#2c3e50',
+    color: colors.text,
     flex: 1,
   },
   infoValue: {
@@ -435,7 +438,7 @@ const styles = StyleSheet.create({
   },
   saveButton: {
     marginTop: responsive.margin.md,
-    backgroundColor: '#3498db',
+    backgroundColor: colors.primary,
   },
   divider: {
     marginVertical: responsive.margin.sm,
@@ -446,7 +449,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
   },
   logoutButton: {
-    backgroundColor: '#e74c3c',
+    backgroundColor: colors.danger,
   },
 });
 

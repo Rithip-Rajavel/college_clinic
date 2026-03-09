@@ -1,5 +1,6 @@
-import React, { createContext, useContext, ReactNode } from 'react';
+import React, { createContext, useContext, ReactNode, useState, useEffect } from 'react';
 import { useColorScheme } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
   MD3DarkTheme,
   MD3LightTheme,
@@ -88,10 +89,14 @@ const customDarkTheme = {
 
 // ─── Context ─────────────────────────────────────────────────────────────────
 
+type ThemeMode = 'system' | 'light' | 'dark';
+
 interface ThemeContextType {
   isDark: boolean;
   colors: AppColors;
   paperTheme: typeof customLightTheme;
+  themeMode: ThemeMode;
+  toggleTheme: () => void;
 }
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
@@ -102,13 +107,48 @@ interface ThemeProviderProps {
 
 export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
   const scheme = useColorScheme();
-  const isDark = scheme === 'dark';
+  const [themeMode, setThemeMode] = useState<ThemeMode>('system');
+  const [isReady, setIsReady] = useState(false);
+
+  useEffect(() => {
+    const loadThemeMode = async () => {
+      try {
+        const storedMode = await AsyncStorage.getItem('app_theme_mode');
+        if (storedMode === 'light' || storedMode === 'dark') {
+          setThemeMode(storedMode);
+        }
+      } catch (e) {
+        // ignore error
+      } finally {
+        setIsReady(true);
+      }
+    };
+    loadThemeMode();
+  }, []);
+
+  const toggleTheme = async () => {
+    const newMode = (themeMode === 'system' ? (scheme === 'dark' ? 'light' : 'dark') : (themeMode === 'dark' ? 'light' : 'dark'));
+    setThemeMode(newMode);
+    try {
+      await AsyncStorage.setItem('app_theme_mode', newMode);
+    } catch (e) {
+      // ignore
+    }
+  };
+
+  const isDark = themeMode === 'system' ? scheme === 'dark' : themeMode === 'dark';
 
   const value: ThemeContextType = {
     isDark,
     colors: isDark ? darkColors : lightColors,
     paperTheme: isDark ? customDarkTheme : customLightTheme,
+    themeMode,
+    toggleTheme,
   };
+
+  if (!isReady) {
+    return null; // or a loading screen if necessary
+  }
 
   return (
     <ThemeContext.Provider value={value}>

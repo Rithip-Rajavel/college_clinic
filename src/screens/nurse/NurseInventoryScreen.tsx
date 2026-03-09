@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, ScrollView, Alert } from 'react-native';
+import { View, StyleSheet, ScrollView, Alert, Linking, TouchableOpacity, Switch, FlatList } from 'react-native';
+import { useTheme } from '../../contexts/ThemeContext';
 import {
   Card,
   Title,
@@ -20,6 +21,8 @@ import { responsive } from '../../utils/dimensions';
 import ApiService from '../../services/api';
 
 const NurseInventoryScreen: React.FC = () => {
+  const { colors } = useTheme();
+  const styles = makeStyles(colors);
   const navigation = useNavigation();
   const [inventory, setInventory] = useState<any[]>([]);
   const [lowStockItems, setLowStockItems] = useState<any[]>([]);
@@ -188,9 +191,9 @@ const NurseInventoryScreen: React.FC = () => {
   };
 
   const getStockStatus = (current: number, minimum: number) => {
-    if (current === 0) return { status: 'OUT_OF_STOCK', color: '#e74c3c', label: 'Out of Stock' };
+    if (current === 0) return { status: 'OUT_OF_STOCK', color: colors.danger, label: 'Out of Stock' };
     if (current <= minimum) return { status: 'LOW_STOCK', color: '#f39c12', label: 'Low Stock' };
-    return { status: 'IN_STOCK', color: '#27ae60', label: 'In Stock' };
+    return { status: 'IN_STOCK', color: colors.success, label: 'In Stock' };
   };
 
   const getStockProgress = (current: number, minimum: number) => {
@@ -199,16 +202,16 @@ const NurseInventoryScreen: React.FC = () => {
   };
 
   const getExpiryStatus = (expiryDate: string) => {
-    if (!expiryDate) return { status: 'UNKNOWN', color: '#7f8c8d', daysLeft: null };
+    if (!expiryDate) return { status: 'UNKNOWN', color: colors.textSecondary, daysLeft: null };
 
     const expiry = new Date(expiryDate);
     const today = new Date();
     const timeDiff = expiry.getTime() - today.getTime();
     const daysLeft = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
 
-    if (daysLeft < 0) return { status: 'EXPIRED', color: '#e74c3c', daysLeft };
+    if (daysLeft < 0) return { status: 'EXPIRED', color: colors.danger, daysLeft };
     if (daysLeft <= 30) return { status: 'EXPIRING_SOON', color: '#f39c12', daysLeft };
-    return { status: 'VALID', color: '#27ae60', daysLeft };
+    return { status: 'VALID', color: colors.success, daysLeft };
   };
 
   const filteredInventory = inventory.filter(item => {
@@ -310,7 +313,7 @@ const NurseInventoryScreen: React.FC = () => {
 
           <Card style={styles.statCard}>
             <Card.Content style={styles.statContent}>
-              <Text style={[styles.statNumber, { color: '#e74c3c' }]}>
+              <Text style={[styles.statNumber, { color: colors.danger }]}>
                 {outOfStockItems.length}
               </Text>
               <Text style={styles.statLabel}>Out of Stock</Text>
@@ -583,10 +586,10 @@ const NurseInventoryScreen: React.FC = () => {
   );
 };
 
-const styles = StyleSheet.create({
+const makeStyles = (colors: any) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: colors.background,
   },
   scrollView: {
     flex: 1,
@@ -596,13 +599,13 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: responsive.fontSize.xl,
-    color: '#2c3e50',
+    color: colors.text,
     marginBottom: responsive.margin.sm,
     textAlign: 'center',
   },
   subtitle: {
     fontSize: responsive.fontSize.md,
-    color: '#7f8c8d',
+    color: colors.textSecondary,
     textAlign: 'center',
     marginBottom: responsive.margin.lg,
   },
@@ -652,7 +655,7 @@ const styles = StyleSheet.create({
   filterLabel: {
     fontSize: responsive.fontSize.md,
     fontWeight: 'bold',
-    color: '#2c3e50',
+    color: colors.text,
     marginBottom: responsive.margin.sm,
   },
   categoryScroll: {
@@ -665,7 +668,7 @@ const styles = StyleSheet.create({
     marginRight: responsive.margin.sm,
   },
   selectedCategoryChip: {
-    backgroundColor: '#3498db',
+    backgroundColor: colors.primary,
   },
   statsContainer: {
     flexDirection: 'row',
@@ -685,11 +688,11 @@ const styles = StyleSheet.create({
   statNumber: {
     fontSize: responsive.fontSize.xxxl,
     fontWeight: 'bold',
-    color: '#2c3e50',
+    color: colors.text,
   },
   statLabel: {
     fontSize: responsive.fontSize.sm,
-    color: '#7f8c8d',
+    color: colors.textSecondary,
     textAlign: 'center',
   },
   emptyCard: {
@@ -702,13 +705,13 @@ const styles = StyleSheet.create({
   },
   emptyText: {
     fontSize: responsive.fontSize.lg,
-    color: '#7f8c8d',
+    color: colors.textSecondary,
     marginBottom: responsive.margin.sm,
     textAlign: 'center',
   },
   emptySubtext: {
     fontSize: responsive.fontSize.md,
-    color: '#95a5a6',
+    color: colors.textMuted,
     textAlign: 'center',
   },
   inventoryCard: {
@@ -727,7 +730,7 @@ const styles = StyleSheet.create({
   itemName: {
     fontSize: responsive.fontSize.lg,
     fontWeight: 'bold',
-    color: '#2c3e50',
+    color: colors.text,
     marginBottom: responsive.margin.xs,
   },
   itemDescription: {
@@ -757,7 +760,7 @@ const styles = StyleSheet.create({
   detailLabel: {
     fontSize: responsive.fontSize.sm,
     fontWeight: 'bold',
-    color: '#2c3e50',
+    color: colors.text,
     flex: 1,
   },
   detailValue: {
@@ -782,7 +785,7 @@ const styles = StyleSheet.create({
   updateButton: {
     flex: 1,
     marginRight: responsive.margin.xs,
-    borderColor: '#27ae60',
+    borderColor: colors.success,
   },
   reduceButton: {
     flex: 1,
@@ -799,7 +802,7 @@ const styles = StyleSheet.create({
     margin: responsive.margin.md,
     right: 0,
     bottom: 0,
-    backgroundColor: '#3498db',
+    backgroundColor: colors.primary,
   },
   modalContent: {
     backgroundColor: 'white',
@@ -810,7 +813,7 @@ const styles = StyleSheet.create({
   },
   modalTitle: {
     fontSize: responsive.fontSize.xl,
-    color: '#2c3e50',
+    color: colors.text,
     marginBottom: responsive.margin.lg,
     textAlign: 'center',
   },
@@ -831,20 +834,20 @@ const styles = StyleSheet.create({
     marginTop: responsive.margin.lg,
   },
   saveButton: {
-    backgroundColor: '#27ae60',
+    backgroundColor: colors.success,
   },
   dangerButton: {
-    backgroundColor: '#e74c3c',
+    backgroundColor: colors.danger,
   },
   currentStockText: {
     fontSize: responsive.fontSize.md,
-    color: '#7f8c8d',
+    color: colors.textSecondary,
     marginBottom: responsive.margin.md,
     textAlign: 'center',
   },
   operationLabel: {
     fontSize: responsive.fontSize.md,
-    color: '#7f8c8d',
+    color: colors.textSecondary,
     marginBottom: responsive.margin.sm,
     textAlign: 'center',
   },

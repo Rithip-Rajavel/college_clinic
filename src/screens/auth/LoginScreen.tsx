@@ -1,3 +1,4 @@
+import { useTheme } from '../../contexts/ThemeContext';
 import React, { useState } from 'react';
 import {
   View,
@@ -25,6 +26,9 @@ interface LoginScreenProps {
 }
 
 const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
+  const { colors } = useTheme();
+  const styles = makeStyles(colors);
+  
   const [identifier, setIdentifier] = useState('');
   const [password, setPassword] = useState('');
   const [rememberMe, setRememberMe] = useState(false);
@@ -159,10 +163,10 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
   );
 };
 
-const styles = StyleSheet.create({
+const makeStyles = (colors: any) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: colors.background,
   },
   scrollContainer: {
     flexGrow: 1,
@@ -181,13 +185,13 @@ const styles = StyleSheet.create({
     fontSize: responsive.fontSize.xxl,
     fontWeight: 'bold',
     marginBottom: responsive.margin.sm,
-    color: '#2c3e50',
+    color: colors.text,
   },
   subtitle: {
     textAlign: 'center',
     fontSize: responsive.fontSize.md,
     marginBottom: responsive.margin.xl,
-    color: '#7f8c8d',
+    color: colors.textSecondary,
   },
   input: {
     marginBottom: responsive.margin.md,

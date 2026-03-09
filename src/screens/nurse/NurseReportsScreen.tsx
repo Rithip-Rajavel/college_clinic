@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, ScrollView, Alert, Share } from 'react-native';
+import { View, StyleSheet, ScrollView, Alert, Linking, TouchableOpacity, Switch, FlatList, Share } from 'react-native';
+import { useTheme } from '../../contexts/ThemeContext';
 import {
   Card,
   Title,
@@ -18,6 +19,8 @@ import { responsive } from '../../utils/dimensions';
 import ApiService from '../../services/api';
 
 const NurseReportsScreen: React.FC = () => {
+  const { colors } = useTheme();
+  const styles = makeStyles(colors);
   const [reports, setReports] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedReportType, setSelectedReportType] = useState('all');
@@ -278,7 +281,7 @@ const NurseReportsScreen: React.FC = () => {
 
           <Card style={styles.statCard}>
             <Card.Content style={styles.statContent}>
-              <Text style={[styles.statNumber, { color: '#27ae60' }]}>
+              <Text style={[styles.statNumber, { color: colors.success }]}>
                 {reports.filter(r => r.format === 'Excel').length}
               </Text>
               <Text style={styles.statLabel}>Excel Reports</Text>
@@ -323,7 +326,7 @@ const NurseReportsScreen: React.FC = () => {
                   </View>
                 </View>
 
-                <View style={styles.reportDetails}>
+                <View style={styles.reportDetailsSection}>
                   <View style={styles.detailRow}>
                     <Text style={styles.detailLabel}>Generated:</Text>
                     <Text style={styles.detailValue}>{new Date(report.generatedDate).toLocaleDateString()}</Text>
@@ -455,10 +458,10 @@ const NurseReportsScreen: React.FC = () => {
   );
 };
 
-const styles = StyleSheet.create({
+const makeStyles = (colors: any) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: colors.background,
   },
   scrollView: {
     flex: 1,
@@ -468,13 +471,13 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: responsive.fontSize.xl,
-    color: '#2c3e50',
+    color: colors.text,
     marginBottom: responsive.margin.sm,
     textAlign: 'center',
   },
   subtitle: {
     fontSize: responsive.fontSize.md,
-    color: '#7f8c8d',
+    color: colors.textSecondary,
     textAlign: 'center',
     marginBottom: responsive.margin.lg,
   },
@@ -486,7 +489,7 @@ const styles = StyleSheet.create({
   },
   quickActionsTitle: {
     fontSize: responsive.fontSize.lg,
-    color: '#2c3e50',
+    color: colors.text,
     marginBottom: responsive.margin.md,
   },
   quickActions: {
@@ -503,7 +506,7 @@ const styles = StyleSheet.create({
   filterLabel: {
     fontSize: responsive.fontSize.md,
     fontWeight: 'bold',
-    color: '#2c3e50',
+    color: colors.text,
     marginBottom: responsive.margin.sm,
   },
   typeScroll: {
@@ -512,11 +515,15 @@ const styles = StyleSheet.create({
   typeContent: {
     paddingRight: responsive.padding.md,
   },
+  typeChipText: {
+    color: 'white',
+    fontSize: responsive.fontSize.xs,
+  },
   typeChip: {
     marginRight: responsive.margin.sm,
   },
   selectedTypeChip: {
-    backgroundColor: '#3498db',
+    backgroundColor: colors.primary,
   },
   statsContainer: {
     flexDirection: 'row',
@@ -535,11 +542,11 @@ const styles = StyleSheet.create({
   statNumber: {
     fontSize: responsive.fontSize.xxxl,
     fontWeight: 'bold',
-    color: '#2c3e50',
+    color: colors.text,
   },
   statLabel: {
     fontSize: responsive.fontSize.sm,
-    color: '#7f8c8d',
+    color: colors.textSecondary,
     textAlign: 'center',
   },
   emptyCard: {
@@ -552,13 +559,13 @@ const styles = StyleSheet.create({
   },
   emptyText: {
     fontSize: responsive.fontSize.lg,
-    color: '#7f8c8d',
+    color: colors.textSecondary,
     marginBottom: responsive.margin.sm,
     textAlign: 'center',
   },
   emptySubtext: {
     fontSize: responsive.fontSize.md,
-    color: '#95a5a6',
+    color: colors.textMuted,
     textAlign: 'center',
   },
   reportCard: {
@@ -586,7 +593,7 @@ const styles = StyleSheet.create({
   reportName: {
     fontSize: responsive.fontSize.lg,
     fontWeight: 'bold',
-    color: '#2c3e50',
+    color: colors.text,
     marginBottom: responsive.margin.xs,
   },
   reportDescription: {
@@ -597,7 +604,7 @@ const styles = StyleSheet.create({
   reportMeta: {
     marginLeft: responsive.margin.sm,
   },
-  reportDetails: {
+  reportDetailsSection: {
     marginBottom: responsive.margin.md,
   },
   detailRow: {
@@ -609,7 +616,7 @@ const styles = StyleSheet.create({
   detailLabel: {
     fontSize: responsive.fontSize.sm,
     fontWeight: 'bold',
-    color: '#2c3e50',
+    color: colors.text,
     flex: 1,
   },
   detailValue: {
@@ -625,7 +632,7 @@ const styles = StyleSheet.create({
   downloadButton: {
     flex: 1,
     marginRight: responsive.margin.xs,
-    borderColor: '#27ae60',
+    borderColor: colors.success,
   },
   shareButton: {
     flex: 1,
@@ -635,7 +642,7 @@ const styles = StyleSheet.create({
   deleteButton: {
     flex: 1,
     marginLeft: responsive.margin.xs,
-    borderColor: '#e74c3c',
+    borderColor: colors.danger,
   },
   modalContent: {
     backgroundColor: 'white',
@@ -646,7 +653,7 @@ const styles = StyleSheet.create({
   },
   modalTitle: {
     fontSize: responsive.fontSize.xl,
-    color: '#2c3e50',
+    color: colors.text,
     marginBottom: responsive.margin.lg,
     textAlign: 'center',
   },
@@ -665,7 +672,7 @@ const styles = StyleSheet.create({
   formatLabel: {
     fontSize: responsive.fontSize.md,
     fontWeight: 'bold',
-    color: '#2c3e50',
+    color: colors.text,
     marginBottom: responsive.margin.sm,
   },
   formatOptions: {
@@ -676,7 +683,7 @@ const styles = StyleSheet.create({
     marginRight: responsive.margin.sm,
   },
   selectedFormatChip: {
-    backgroundColor: '#3498db',
+    backgroundColor: colors.primary,
   },
   modalActions: {
     flexDirection: 'row',
@@ -684,7 +691,7 @@ const styles = StyleSheet.create({
     marginTop: responsive.margin.lg,
   },
   generateButton: {
-    backgroundColor: '#3498db',
+    backgroundColor: colors.primary,
   },
 });
 

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, ScrollView, Alert, Linking } from 'react-native';
+import { View, StyleSheet, ScrollView, Alert, Linking, TouchableOpacity, Switch, FlatList } from 'react-native';
+import { useTheme } from '../../contexts/ThemeContext';
 import {
   Card,
   Title,
@@ -13,6 +14,8 @@ import {
 import { responsive } from '../../utils/dimensions';
 
 const StaffHealthResourcesScreen: React.FC = () => {
+  const { colors } = useTheme();
+  const styles = makeStyles(colors);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
 
@@ -257,10 +260,10 @@ const StaffHealthResourcesScreen: React.FC = () => {
   );
 };
 
-const styles = StyleSheet.create({
+const makeStyles = (colors: any) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: colors.background,
   },
   scrollView: {
     flex: 1,
@@ -270,13 +273,13 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: responsive.fontSize.xl,
-    color: '#2c3e50',
+    color: colors.text,
     marginBottom: responsive.margin.sm,
     textAlign: 'center',
   },
   subtitle: {
     fontSize: responsive.fontSize.md,
-    color: '#7f8c8d',
+    color: colors.textSecondary,
     textAlign: 'center',
     marginBottom: responsive.margin.lg,
   },
@@ -290,7 +293,7 @@ const styles = StyleSheet.create({
   categoriesTitle: {
     fontSize: responsive.fontSize.lg,
     fontWeight: 'bold',
-    color: '#2c3e50',
+    color: colors.text,
     marginBottom: responsive.margin.sm,
   },
   categoriesScroll: {
@@ -304,7 +307,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#e8f4f8',
   },
   selectedCategoryChip: {
-    backgroundColor: '#3498db',
+    backgroundColor: colors.primary,
   },
   categoryChipText: {
     fontSize: responsive.fontSize.sm,
@@ -319,13 +322,13 @@ const styles = StyleSheet.create({
   },
   emptyText: {
     fontSize: responsive.fontSize.lg,
-    color: '#7f8c8d',
+    color: colors.textSecondary,
     marginBottom: responsive.margin.sm,
     textAlign: 'center',
   },
   emptySubtext: {
     fontSize: responsive.fontSize.md,
-    color: '#95a5a6',
+    color: colors.textMuted,
     textAlign: 'center',
   },
   resourceCard: {
@@ -351,7 +354,7 @@ const styles = StyleSheet.create({
   },
   resourceTitle: {
     fontSize: responsive.fontSize.lg,
-    color: '#2c3e50',
+    color: colors.text,
     marginBottom: responsive.margin.xs,
     flex: 1,
   },
@@ -373,7 +376,7 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
   },
   accessButton: {
-    backgroundColor: '#3498db',
+    backgroundColor: colors.primary,
   },
   footerSection: {
     marginTop: responsive.margin.lg,

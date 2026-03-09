@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, ScrollView, Alert } from 'react-native';
+import { View, StyleSheet, ScrollView, Alert, Linking, TouchableOpacity, Switch, FlatList } from 'react-native';
+import { useTheme } from '../../contexts/ThemeContext';
 import {
   Card,
   Title,
@@ -20,6 +21,8 @@ import ApiService from '../../services/api';
 import { USER_ROLES } from '../../constants/api';
 
 const NurseUsersScreen: React.FC = () => {
+  const { colors } = useTheme();
+  const styles = makeStyles(colors);
   const navigation = useNavigation();
   const [users, setUsers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -256,7 +259,7 @@ const NurseUsersScreen: React.FC = () => {
 
           <Card style={styles.statCard}>
             <Card.Content style={styles.statContent}>
-              <Text style={[styles.statNumber, { color: '#e74c3c' }]}>
+              <Text style={[styles.statNumber, { color: colors.danger }]}>
                 {users.filter(u => u.role === 'NURSE').length}
               </Text>
               <Text style={styles.statLabel}>Nurses</Text>
@@ -551,10 +554,10 @@ const NurseUsersScreen: React.FC = () => {
   );
 };
 
-const styles = StyleSheet.create({
+const makeStyles = (colors: any) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: colors.background,
   },
   scrollView: {
     flex: 1,
@@ -564,13 +567,13 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: responsive.fontSize.xl,
-    color: '#2c3e50',
+    color: colors.text,
     marginBottom: responsive.margin.sm,
     textAlign: 'center',
   },
   subtitle: {
     fontSize: responsive.fontSize.md,
-    color: '#7f8c8d',
+    color: colors.textSecondary,
     textAlign: 'center',
     marginBottom: responsive.margin.lg,
   },
@@ -584,7 +587,7 @@ const styles = StyleSheet.create({
   filterLabel: {
     fontSize: responsive.fontSize.md,
     fontWeight: 'bold',
-    color: '#2c3e50',
+    color: colors.text,
     marginBottom: responsive.margin.sm,
   },
   roleScroll: {
@@ -602,7 +605,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   selectedRoleChip: {
-    backgroundColor: '#3498db',
+    backgroundColor: colors.primary,
   },
   statsContainer: {
     flexDirection: 'row',
@@ -622,16 +625,16 @@ const styles = StyleSheet.create({
   statNumber: {
     fontSize: responsive.fontSize.xxxl,
     fontWeight: 'bold',
-    color: '#2c3e50',
+    color: colors.text,
   },
   statLabel: {
     fontSize: responsive.fontSize.sm,
-    color: '#7f8c8d',
+    color: colors.textSecondary,
     textAlign: 'center',
   },
   statValue: {
     fontSize: responsive.fontSize.sm,
-    color: '#2c3e50',
+    color: colors.text,
     fontWeight: 'bold',
   },
   emptyCard: {
@@ -644,13 +647,13 @@ const styles = StyleSheet.create({
   },
   emptyText: {
     fontSize: responsive.fontSize.lg,
-    color: '#7f8c8d',
+    color: colors.textSecondary,
     marginBottom: responsive.margin.sm,
     textAlign: 'center',
   },
   emptySubtext: {
     fontSize: responsive.fontSize.md,
-    color: '#95a5a6',
+    color: colors.textMuted,
     textAlign: 'center',
   },
   userCard: {
@@ -678,12 +681,12 @@ const styles = StyleSheet.create({
   userName: {
     fontSize: responsive.fontSize.lg,
     fontWeight: 'bold',
-    color: '#2c3e50',
+    color: colors.text,
     marginBottom: responsive.margin.xs,
   },
   userSubInfo: {
     fontSize: responsive.fontSize.sm,
-    color: '#7f8c8d',
+    color: colors.textSecondary,
     marginBottom: responsive.margin.xs,
   },
   roleContainer: {
@@ -694,7 +697,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-around',
     marginBottom: responsive.margin.md,
     paddingVertical: responsive.padding.sm,
-    backgroundColor: '#f8f9fa',
+    backgroundColor: colors.surfaceVariant,
     borderRadius: responsive.borderRadius.md,
   },
   userStat: {
@@ -712,14 +715,14 @@ const styles = StyleSheet.create({
   deactivateButton: {
     flex: 1,
     marginLeft: responsive.margin.sm,
-    borderColor: '#e74c3c',
+    borderColor: colors.danger,
   },
   fab: {
     position: 'absolute',
     margin: responsive.margin.md,
     right: 0,
     bottom: 0,
-    backgroundColor: '#3498db',
+    backgroundColor: colors.primary,
   },
   modalContent: {
     backgroundColor: 'white',
@@ -730,7 +733,7 @@ const styles = StyleSheet.create({
   },
   modalTitle: {
     fontSize: responsive.fontSize.xl,
-    color: '#2c3e50',
+    color: colors.text,
     marginBottom: responsive.margin.lg,
     textAlign: 'center',
   },
@@ -751,10 +754,10 @@ const styles = StyleSheet.create({
     marginTop: responsive.margin.lg,
   },
   saveButton: {
-    backgroundColor: '#27ae60',
+    backgroundColor: colors.success,
   },
   closeButton: {
-    backgroundColor: '#3498db',
+    backgroundColor: colors.primary,
   },
   detailsContainer: {
     marginBottom: responsive.margin.lg,
@@ -769,7 +772,7 @@ const styles = StyleSheet.create({
   detailLabel: {
     fontSize: responsive.fontSize.md,
     fontWeight: 'bold',
-    color: '#2c3e50',
+    color: colors.text,
     flex: 1,
   },
   detailValue: {

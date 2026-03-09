@@ -2,8 +2,11 @@ import React from 'react';
 import { View, StyleSheet, ScrollView } from 'react-native';
 import { Card, Title, Paragraph, Button, Text } from 'react-native-paper';
 import { responsive } from '../../utils/dimensions';
+import { useTheme } from '../../contexts/ThemeContext';
 
 const StudentHealthResourcesScreen: React.FC = () => {
+  const { colors } = useTheme();
+  const styles = makeStyles(colors);
   const resources = [
     {
       id: 1,
@@ -58,17 +61,17 @@ const StudentHealthResourcesScreen: React.FC = () => {
   );
 };
 
-const styles = StyleSheet.create({
+const makeStyles = (colors: any) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: colors.background,
   },
   contentContainer: {
     padding: responsive.padding.md,
   },
   title: {
     fontSize: responsive.fontSize.xl,
-    color: '#2c3e50',
+    color: colors.text,
     marginBottom: responsive.margin.lg,
     textAlign: 'center',
   },
@@ -78,16 +81,16 @@ const styles = StyleSheet.create({
   },
   resourceTitle: {
     fontSize: responsive.fontSize.lg,
-    color: '#2c3e50',
+    color: colors.text,
     marginBottom: responsive.margin.sm,
   },
   resourceDescription: {
     fontSize: responsive.fontSize.md,
-    color: '#555',
+    color: colors.textSecondary,
     marginBottom: responsive.margin.md,
   },
   resourceButton: {
-    backgroundColor: '#3498db',
+    backgroundColor: colors.primary,
   },
 });
 
